@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>用户管理 - SalesPilot CRM</title>
+<style>
+:root{
+  --primary:#0ea5e9;
+  --primary-dark:#0284c7;
+  --primary-light:#e0f2fe;
+  --bg:#f1f5f9;
+  --surface:#ffffff;
+  --border:#e2e8f0;
+  --text:#1e293b;
+  --text2:#64748b;
+  --success:#10b981;
+  --danger:#ef4444;
+  --warning:#f59e0b;
+  --shadow:0 1px 3px rgba(15,23,42,.08);
+  --radius:14px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+.header{
+  position:sticky;
+  top:0;
+  z-index:100;
+  padding:16px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:linear-gradient(135deg,#0ea5e9,#2563eb);
+  color:#fff;
+}
+
+.header h1{
+  font-size:20px;
+  font-weight:700;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.header-actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.btn{
+  border:none;
+  cursor:pointer;
+  border-radius:10px;
+  padding:10px 16px;
+  font-size:14px;
+  font-weight:700;
+  transition:all .2s;
+}
+
+.btn-primary{background:#fff;color:var(--primary-dark)}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-outline{background:rgba(255,255,255,.16);color:#fff}
+.btn-outline:hover{background:rgba(255,255,255,.24)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-ghost:hover{background:#f8fafc}
+.btn-danger{background:var(--danger);color:#fff}
+
+.container{
+  max-width:1100px;
+  margin:24px auto;
+  padding:0 16px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:14px;
+  margin-bottom:24px;
+}
+
+.stat-card{
+  background:var(--surface);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:18px;
+}
+
+.stat-value{
+  font-size:30px;
+  font-weight:800;
+  color:var(--primary);
+}
+
+.stat-label{
+  margin-top:6px;
+  font-size:13px;
+  color:var(--text2);
+}
+
+.table-card{
+  overflow:hidden;
+  background:var(--surface);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+
+.table-head{
+  padding:20px 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid var(--border);
+}
+
+.table-head h2{font-size:18px;font-weight:800}
+.table-head p{margin-top:6px;font-size:13px;color:var(--text2)}
+
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{
+  padding:12px 16px;
+  background:#f8fafc;
+  text-align:left;
+  font-size:12px;
+  color:var(--text2);
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.03em;
+}
+td{
+  padding:14px 16px;
+  border-bottom:1px solid var(--border);
+  font-size:14px;
+  vertical-align:middle;
+}
+tr:hover td{background:#fbfdff}
+
+.user-cell{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.user-avatar{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg,#0ea5e9,#2563eb);
+  color:#fff;
+  font-weight:800;
+}
+
+.user-name{font-weight:700}
+.user-note{font-size:12px;color:var(--text2);margin-top:4px}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+}
+
+.badge-admin{background:#fef3c7;color:#92400e}
+.badge-user{background:#dbeafe;color:#1d4ed8}
+
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.action-btn{
+  padding:6px 12px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:700;
+}
+
+.action-edit{background:var(--primary-light);color:var(--primary-dark)}
+.action-delete{background:#fee2e2;color:#991b1b}
+
+.loading{
+  padding:38px 16px;
+  text-align:center;
+  color:var(--text2);
+}
+
+.empty{
+  padding:38px 16px;
+  text-align:center;
+  color:var(--text2);
+}
+
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(15,23,42,.5);
+  z-index:200;
+}
+
+.modal-overlay.active{display:flex}
+
+.modal{
+  width:100%;
+  max-width:480px;
+  overflow:hidden;
+  border-radius:18px;
+  background:#fff;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+}
+
+.modal-head{
+  padding:18px 22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom:1px solid var(--border);
+}
+
+.modal-head h3{font-size:18px;font-weight:800}
+
+.modal-close{
+  width:34px;
+  height:34px;
+  border:none;
+  border-radius:10px;
+  background:#f8fafc;
+  cursor:pointer;
+  font-size:18px;
+}
+
+.modal-body{padding:22px}
+
+.form-group{margin-bottom:16px}
+.form-group label{
+  display:block;
+  margin-bottom:8px;
+  font-size:13px;
+  font-weight:700;
+  color:var(--text2);
+}
+
+.form-group input{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  font-size:14px;
+  color:var(--text);
+}
+
+.form-group input:focus{
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(14,165,233,.12);
+}
+
+.form-hint{
+  margin-top:8px;
+  font-size:12px;
+  color:var(--text2);
+  line-height:1.6;
+}
+
+.modal-foot{
+  padding:16px 22px 22px;
+  display:flex;
+  justify-content:flex-end;
+  gap:12px;
+}
+
+.toast{
+  position:fixed;
+  top:20px;
+  right:20px;
+  z-index:300;
+  padding:14px 18px;
+  border-radius:12px;
+  color:#fff;
+  font-size:14px;
+  font-weight:700;
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
+  transform:translateX(120%);
+  transition:transform .25s ease;
+}
+
+.toast.show{transform:translateX(0)}
+.toast-success{background:var(--success)}
+.toast-error{background:var(--danger)}
+
+@media (max-width:720px){
+  .header{padding:14px 16px;align-items:flex-start;gap:12px;flex-direction:column}
+  .header-actions{width:100%;justify-content:flex-start;flex-wrap:wrap}
+  .actions{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>👥 用户管理</h1>
+  <div class="header-actions">
+    <button class="btn btn-outline" onclick="goBack()">返回工作台</button>
+    <button class="btn btn-outline" onclick="goToChangePassword()">修改密码</button>
+    <button class="btn btn-primary" onclick="openCreateModal()">新增用户</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-value" id="stat-total">-</div>
+      <div class="stat-label">总用户数</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-admin">-</div>
+      <div class="stat-label">管理员账号</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="stat-normal">-</div>
+      <div class="stat-label">普通账号</div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-head">
+      <div>
+        <h2>用户列表</h2>
+        <p>当前版本仅维护用户名和密码。`admin` 为保留管理员账号。</p>
+      </div>
+      <button class="btn btn-ghost" onclick="loadUsers()">刷新</button>
+    </div>
+    <div class="table-wrap">
+      <div class="loading" id="loading">加载中...</div>
+      <table id="user-table" style="display:none">
+        <thead>
+          <tr>
+            <th>用户</th>
+            <th>账号类型</th>
+            <th>创建时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="user-tbody"></tbody>
+      </table>
+      <div class="empty" id="empty" style="display:none">暂无用户数据</div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="user-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modal-title">新增用户</h3>
+      <button class="modal-close" onclick="closeModal('user-modal')">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-user-id">
+      <div class="form-group">
+        <label for="modal-username">用户名</label>
+        <input id="modal-username" type="text" placeholder="请输入用户名">
+      </div>
+      <div class="form-group">
+        <label for="modal-password">密码</label>
+        <input id="modal-password" type="text" placeholder="请输入密码">
+        <div class="form-hint" id="password-hint">新增用户时密码必填。编辑用户时留空表示不修改密码。</div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('user-modal')">取消</button>
+      <button class="btn btn-primary" id="save-btn" onclick="saveUser()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="crm-common.js"></script>
+<script>
+var currentUser = CRMApp.requireAuth('user_management');
+var allUsers = [];
+
+function goBack() {
+  window.location.href = 'crm-system.html';
+}
+
+function goToChangePassword() {
+  window.location.href = 'change-password.html';
+}
+
+function sortUsers() {
+  allUsers.sort(function(a, b) {
+    var aTime = a && a.created_at ? new Date(a.created_at).getTime() : 0;
+    var bTime = b && b.created_at ? new Date(b.created_at).getTime() : 0;
+    return bTime - aTime;
+  });
+}
+
+function upsertUser(user) {
+  var index = allUsers.findIndex(function(item) { return item.id === user.id; });
+  if (index >= 0) {
+    allUsers[index] = user;
+  } else {
+    allUsers.push(user);
+  }
+  sortUsers();
+}
+
+function removeUserFromList(userId) {
+  allUsers = allUsers.filter(function(item) { return item.id !== userId; });
+}
+
+function showToast(message, type) {
+  var toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'toast toast-' + type + ' show';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(function() {
+    toast.className = 'toast';
+  }, 2800);
+}
+
+function formatDate(value) {
+  if (!value) {
+    return '-';
+  }
+  return new Date(value).toLocaleString('zh-CN');
+}
+
+function escHtml(value) {
+  return CRMApp.escapeHtml(value);
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('active');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+function openCreateModal() {
+  document.getElementById('modal-title').textContent = '新增用户';
+  document.getElementById('edit-user-id').value = '';
+  document.getElementById('modal-username').value = '';
+  document.getElementById('modal-password').value = '';
+  document.getElementById('password-hint').textContent = '新增用户时密码必填。';
+  document.getElementById('save-btn').textContent = '创建';
+  openModal('user-modal');
+}
+
+function openEditModal(userId) {
+  var user = allUsers.find(function(item) { return item.id === userId; });
+  if (!user) {
+    return;
+  }
+  document.getElementById('modal-title').textContent = '编辑用户';
+  document.getElementById('edit-user-id').value = user.id;
+  document.getElementById('modal-username').value = user.username;
+  document.getElementById('modal-password').value = '';
+  document.getElementById('password-hint').textContent = user.is_admin
+    ? 'admin 账号名称不可改成其它值，密码留空则保持不变。'
+    : '留空表示不修改密码。';
+  document.getElementById('save-btn').textContent = '保存';
+  openModal('user-modal');
+}
+
+function updateStats() {
+  var adminCount = allUsers.filter(function(user) { return user.is_admin; }).length;
+  document.getElementById('stat-total').textContent = allUsers.length;
+  document.getElementById('stat-admin').textContent = adminCount;
+  document.getElementById('stat-normal').textContent = allUsers.length - adminCount;
+}
+
+function renderUsers() {
+  var tbody = document.getElementById('user-tbody');
+  var table = document.getElementById('user-table');
+  var empty = document.getElementById('empty');
+
+  if (!allUsers.length) {
+    table.style.display = 'none';
+    empty.style.display = 'block';
+    tbody.innerHTML = '';
+    return;
+  }
+
+  empty.style.display = 'none';
+  table.style.display = 'table';
+  tbody.innerHTML = allUsers.map(function(user) {
+    var isCurrent = currentUser && currentUser.id === user.id;
+    var isAdmin = user.is_admin === true;
+    return '<tr>' +
+      '<td><div class="user-cell">' +
+        '<div class="user-avatar">' + escHtml((user.username || 'U').charAt(0).toUpperCase()) + '</div>' +
+        '<div><div class="user-name">' + escHtml(user.username) + (isCurrent ? ' <span style="color:#0284c7;font-size:12px">(当前登录)</span>' : '') + '</div>' +
+        '<div class="user-note">' + (isAdmin ? '系统保留管理员账号' : '普通登录账号') + '</div></div>' +
+      '</div></td>' +
+      '<td><span class="badge ' + (isAdmin ? 'badge-admin' : 'badge-user') + '">' + (isAdmin ? 'admin' : '普通用户') + '</span></td>' +
+      '<td>' + escHtml(formatDate(user.created_at)) + '</td>' +
+      '<td><div class="actions">' +
+        '<button class="action-btn action-edit" onclick="openEditModal(\'' + user.id + '\')">编辑</button>' +
+        (isAdmin
+          ? ''
+          : '<button class="action-btn action-delete" onclick="deleteUser(\'' + user.id + '\')">删除</button>') +
+      '</div></td>' +
+    '</tr>';
+  }).join('');
+}
+
+async function loadUsers() {
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('user-table').style.display = 'none';
+  document.getElementById('empty').style.display = 'none';
+
+  try {
+    allUsers = await CRMApp.apiRequest('/api/admin/users');
+    sortUsers();
+    updateStats();
+    renderUsers();
+  } catch (error) {
+    showToast(error.message || '加载用户失败', 'error');
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+  }
+}
+
+async function saveUser() {
+  var userId = document.getElementById('edit-user-id').value;
+  var username = document.getElementById('modal-username').value.trim();
+  var password = document.getElementById('modal-password').value;
+
+  if (!username) {
+    showToast('请输入用户名', 'error');
+    return;
+  }
+
+  if (!userId && !password) {
+    showToast('新增用户时必须填写密码', 'error');
+    return;
+  }
+
+  var payload = { username: username };
+  if (password) {
+    payload.password = password;
+  }
+
+  try {
+    var savedUser = null;
+    if (userId) {
+      savedUser = await CRMApp.apiRequest('/api/admin/users/' + userId, {
+        method: 'PUT',
+        body: payload
+      });
+      upsertUser(savedUser);
+      showToast('用户已更新', 'success');
+    } else {
+      savedUser = await CRMApp.apiRequest('/api/admin/users', {
+        method: 'POST',
+        body: payload
+      });
+      upsertUser(savedUser);
+      showToast('用户已创建', 'success');
+    }
+    closeModal('user-modal');
+    updateStats();
+    renderUsers();
+  } catch (error) {
+    showToast(error.message || '保存失败', 'error');
+  }
+}
+
+async function deleteUser(userId) {
+  var user = allUsers.find(function(item) { return item.id === userId; });
+  var username = user ? user.username : userId;
+  if (!confirm('确定删除用户 ' + username + ' 吗？')) {
+    return;
+  }
+
+  try {
+    var result = await CRMApp.apiRequest('/api/admin/users/' + userId, {
+      method: 'DELETE'
+    });
+    removeUserFromList(userId);
+    updateStats();
+    renderUsers();
+    showToast((result && result.message) || '用户已删除', 'success');
+  } catch (error) {
+    showToast(error.message || '删除失败', 'error');
+  }
+}
+
+document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+  overlay.addEventListener('click', function(event) {
+    if (event.target === overlay) {
+      overlay.classList.remove('active');
+    }
+  });
+});
+
+loadUsers();
+</script>
+</body>
+</html>

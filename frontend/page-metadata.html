@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>元数据配置 — SalesPilot CRM</title>
+<style>
+:root{--primary:#0EA5E9;--primary-light:#E0F2FE;--accent:#8B5CF6;--success:#10B981;--warning:#F59E0B;--danger:#EF4444;--bg:#F1F5F9;--surface:#FFFFFF;--border:#E2E8F0;--text:#1E293B;--text2:#64748B;--text3:#94A3B8;--shadow:0 1px 3px rgba(15,23,42,0.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);display:flex;height:100vh;overflow:hidden}
+.sidebar{width:236px;background:linear-gradient(180deg,#0f172a 0%,#1e3a5f 55%,#0f172a 100%);color:#cbd5e1;padding:22px 0}
+.logo{padding:0 20px 22px;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo-title{font-size:22px;font-weight:800;color:#fff}
+.logo-sub{font-size:12px;color:#94a3b8;margin-top:6px}
+.nav{padding:16px 12px 0}
+.nav-section{margin-bottom:10px}
+.nav-label{padding:0 12px 6px;font-size:10px;font-weight:700;color:#64748b;letter-spacing:1px;text-transform:uppercase}
+.nav a{display:flex;align-items:center;gap:10px;color:#94a3b8;text-decoration:none;padding:11px 12px;border-radius:12px;font-size:14px;margin-bottom:6px}
+.nav a:hover,.nav a.active{background:rgba(14,165,233,.14);color:#fff}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:linear-gradient(145deg,#FFFFFF,#F8FAFC);border-bottom:1px solid var(--border);padding:0 28px;height:64px;display:flex;align-items:center;gap:20px}
+.topbar-title{font-size:20px;font-weight:700;color:var(--text);flex:1}
+.topbar-sub{font-size:13px;color:var(--text3);font-weight:400;margin-left:10px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.btn-primary{background:linear-gradient(135deg,#0EA5E9,#6366F1);color:#fff}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.avatar{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#0EA5E9,#6366F1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700}
+.content{flex:1;overflow-y:auto;padding:24px}
+.schema-card{background:var(--surface);border-radius:16px;padding:24px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:20px}
+.schema-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.schema-tag{display:inline-flex;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;background:var(--primary-light);color:var(--primary)}
+.field-list{display:flex;flex-direction:column;gap:8px}
+.field-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg);border-radius:8px}
+.field-name{font-size:14px;font-weight:600;flex:1}
+.field-type{font-size:12px;color:var(--text2);padding:3px 8px;background:var(--surface);border-radius:4px;border:1px solid var(--border)}
+.field-required{font-size:11px;color:#fff;background:var(--danger);padding:2px 6px;border-radius:4px}
+.field-desc{font-size:12px;color:var(--text3)}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.guide-step{background:linear-gradient(180deg,#FFFFFF,#F8FAFC);border:1px solid var(--border);border-radius:12px;padding:16px}
+.guide-step h4{font-size:14px;margin-bottom:8px}
+.guide-step p,.guide-step li{font-size:13px;line-height:1.7;color:var(--text2)}
+.guide-step ul,.guide-step ol{padding-left:18px;margin-top:8px}
+.guide-code{margin-top:10px;background:#0F172A;color:#E2E8F0;border-radius:10px;padding:12px;font-size:12px;line-height:1.6;overflow:auto}
+.guide-note{margin-top:14px;padding:14px 16px;border-radius:12px;background:#FFF7ED;border:1px solid #FED7AA;font-size:13px;line-height:1.7;color:#9A3412}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-title">SalesPilot</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">
+      <div class="nav-label">概览</div>
+      <a href="crm-system.html">工作台</a>
+      <a href="page-dashboard.html">销售仪表盘</a>
+      <a href="page-funnel.html">商机漏斗</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">销售管理</div>
+      <a href="page-kanban.html">商机看板</a>
+      <a href="page-leads.html">线索管理</a>
+      <a href="page-opportunities.html">商机列表</a>
+      <a href="page-report.html">商机通报</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">AI 能力</div>
+      <a href="ai-input.html">AI 智能录入</a>
+      <a href="card-input.html">价值评估</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">配置</div>
+      <a href="page-metadata.html" class="active">元数据配置</a>
+    </div>
+  </nav>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">元数据配置 <span class="topbar-sub">Metadata-Driven 架构</span></div>
+    <div class="avatar">管</div>
+  </div>
+
+  <div class="content">
+    <!-- 线索 Schema -->
+    <div class="schema-card">
+      <div class="schema-title">
+        📋 线索管理 Schema
+        <span class="schema-tag">Lead</span>
+      </div>
+      <div class="field-list" id="lead-fields"></div>
+    </div>
+
+    <!-- 商机 Schema -->
+    <div class="schema-card">
+      <div class="schema-title">
+        💼 商机列表 Schema
+        <span class="schema-tag">Opportunity</span>
+      </div>
+      <div class="field-list" id="opp-fields"></div>
+    </div>
+<div class="schema-card">
+  <div class="schema-title">
+    手机和网页联调指南
+    <span class="schema-tag">Debug Guide</span>
+  </div>
+  <div class="guide-grid">
+    <div class="guide-step">
+      <h4>1. 启动本地前端静态服务</h4>
+      <p>当前前端目录自带 <code>serve.js</code>，默认端口是 <code>3000</code>。如果要让手机访问，服务绑定地址要从 <code>127.0.0.1</code> 改成 <code>0.0.0.0</code>。</p>
+      <pre class="guide-code">$env:HOST='0.0.0.0'
+$env:PORT='3000'
+npm run dev</pre>
+    </div>
+    <div class="guide-step">
+      <h4>2. 电脑浏览器联调</h4>
+      <p>电脑本机直接访问下面地址即可打开本页：</p>
+      <pre class="guide-code">http://127.0.0.1:3000/page-metadata.html</pre>
+      <p>本页属于静态展示页，只看页面效果时不依赖后端接口。</p>
+    </div>
+    <div class="guide-step">
+      <h4>3. 手机浏览器联调</h4>
+      <p>手机和电脑接入同一局域网后，在电脑执行 <code>ipconfig</code>，找到 IPv4 地址，例如 <code>192.168.1.23</code>，然后在手机浏览器打开：</p>
+      <pre class="guide-code">http://192.168.1.23:3000/page-metadata.html</pre>
+    </div>
+    <div class="guide-step">
+      <h4>4. 涉及接口时的地址设置</h4>
+      <p>项目公共脚本 <code>crm-common.js</code> 在局域网访问时，会默认把接口基地址当成当前页面域名。若后端实际运行在 <code>8000</code> 端口，先在浏览器控制台执行：</p>
+      <pre class="guide-code">localStorage.setItem('crm_api_base', 'http://192.168.1.23:8000')</pre>
+      <p>然后刷新页面，再调登录、列表或提交类接口。</p>
+    </div>
+    <div class="guide-step">
+      <h4>5. 后端跨域配置</h4>
+      <p>后端当前默认只允许 <code>localhost</code> 和 <code>127.0.0.1</code> 来源。手机从 <code>http://192.168.1.23:3000</code> 打开页面时，需要把这个来源加入后端的 <code>CORS_ORIGINS</code>。</p>
+      <pre class="guide-code">["http://localhost:3000","http://127.0.0.1:3000","http://192.168.1.23:3000"]</pre>
+    </div>
+    <div class="guide-step">
+      <h4>6. 推荐联调顺序</h4>
+      <ol>
+        <li>先在电脑浏览器确认静态页能正常打开。</li>
+        <li>再用手机访问同一页面，检查字号、滚动、点击区域和布局换行。</li>
+        <li>需要调接口时，再补充 <code>crm_api_base</code> 和后端 CORS。</li>
+        <li>排查手机问题时，用 Chrome 远程调试或手机浏览器开发者工具查看 Console 和 Network。</li>
+      </ol>
+    </div>
+  </div>
+  <div class="guide-note">
+    只预览 <code>page-metadata.html</code> 时，启动静态服务就够了。只有切到登录页、列表页或录入页这类接口页面时，才需要处理后端地址和跨域。
+  </div>
+</div>
+
+  </div>
+</div>
+
+<script src="crm-common.js"></script>
+<script>
+CRMApp.requireAuth();
+</script>
+<script>
+var leadSchema = [
+  {name:'客户名称',type:'文本',required:true,desc:'客户公司全称'},
+  {name:'商务名称',type:'文本',required:false,desc:'商务对接人姓名'},
+  {name:'单位名称',type:'文本',required:false,desc:'客户单位名称'},
+  {name:'行业',type:'选择',required:true,desc:'客户所属行业'},
+  {name:'客户类型',type:'选择',required:true,desc:'老客户/新客户'},
+  {name:'等级',type:'选择',required:true,desc:'A级/B级/C级'},
+  {name:'需求描述',type:'多行文本',required:false,desc:'客户需求描述'},
+  {name:'预算',type:'金额',required:false,desc:'预估预算金额'},
+  {name:'线索来源',type:'选择',required:true,desc:'电话营销/展会/转介绍等'},
+  {name:'初审通过',type:'布尔',required:false,desc:'是否通过初审'},
+  {name:'有效接触日期',type:'日期',required:false,desc:'首次有效接触日期'},
+  {name:'决策链',type:'文本',required:false,desc:'客户决策链说明'},
+  {name:'合作意向',type:'选择',required:false,desc:'强/中/弱/无'},
+  {name:'状态',type:'选择',required:true,desc:'初筛中/待跟进/有效/无效'}
+];
+
+var oppSchema = [
+  {name:'客户名称',type:'文本',required:true,desc:'关联的客户'},
+  {name:'商机名称',type:'文本',required:true,desc:'商机项目名称'},
+  {name:'客户类型',type:'选择',required:true,desc:'老客户/新客户'},
+  {name:'涉及产品',type:'选择',required:false,desc:'关联的产品'},
+  {name:'预算',type:'金额',required:false,desc:'商机预算金额'},
+  {name:'等级',type:'选择',required:true,desc:'A级/B级/C级'},
+  {name:'阶段',type:'选择',required:true,desc:'收集信息/有效接触/拿到预算/方案认可/签约回款'},
+  {name:'负责人',type:'选择',required:true,desc:'商机负责人'},
+  {name:'项目类型',type:'选择',required:false,desc:'新签/增购/续费'},
+  {name:'立项日期',type:'日期',required:false,desc:'商机立项日期'},
+  {name:'预计签约日期',type:'日期',required:false,desc:'预计签约时间'},
+  {name:'B卡评分',type:'数字',required:false,desc:'B卡评估分数'},
+  {name:'方案沟通情况',type:'多行文本',required:false,desc:'方案沟通记录'}
+];
+
+function renderFields(containerId, fields) {
+  var html = fields.map(function(f){
+    return '<div class="field-item"><div><div class="field-name">'+f.name+(f.required?' <span class="field-required">必填</span>':'')+'</div><div class="field-desc">'+f.desc+'</div></div><span class="field-type">'+f.type+'</span></div>';
+  }).join('');
+  document.getElementById(containerId).innerHTML = html;
+}
+
+renderFields('lead-fields', leadSchema);
+renderFields('opp-fields', oppSchema);
+</script>
+</body>
+</html>

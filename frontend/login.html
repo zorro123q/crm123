@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SalesPilot CRM - 登录</title>
+  <style>
+    :root{
+      --bg:#eef4fb;
+      --surface:rgba(255,255,255,.9);
+      --primary:#0f766e;
+      --primary-dark:#115e59;
+      --text:#0f172a;
+      --muted:#64748b;
+      --border:#d8e3ef;
+      --danger:#dc2626;
+      --shadow:0 28px 64px rgba(15,23,42,.16);
+      --radius:24px;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+
+    body{
+      min-height:100vh;
+      font-family:"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(15,118,110,.15), transparent 32%),
+        radial-gradient(circle at bottom right, rgba(217,119,6,.14), transparent 28%),
+        linear-gradient(160deg,#eef4fb 0%,#f8fafc 52%,#edf6f3 100%);
+    }
+
+    .page{
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px 18px;
+    }
+
+    .panel{
+      width:min(980px,100%);
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      overflow:hidden;
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      background:var(--surface);
+      border:1px solid rgba(255,255,255,.7);
+      backdrop-filter:blur(16px);
+    }
+
+    .hero{
+      position:relative;
+      padding:44px 38px;
+      color:#fff;
+      background:
+        linear-gradient(145deg, rgba(15,118,110,.98), rgba(17,94,89,.9)),
+        linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,0));
+    }
+
+    .hero::after{
+      content:"";
+      position:absolute;
+      right:-72px;
+      bottom:-72px;
+      width:230px;
+      height:230px;
+      border-radius:50%;
+      background:rgba(255,255,255,.08);
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.14);
+      font-size:13px;
+      letter-spacing:.04em;
+    }
+
+    .hero h1{
+      margin-top:24px;
+      font-size:34px;
+      line-height:1.18;
+    }
+
+    .hero p{
+      margin-top:16px;
+      max-width:430px;
+      font-size:15px;
+      line-height:1.72;
+      color:rgba(255,255,255,.88);
+    }
+
+    .hero-points{
+      margin-top:28px;
+      display:grid;
+      gap:14px;
+    }
+
+    .hero-point{
+      padding:14px 16px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.08);
+    }
+
+    .hero-point strong{
+      display:block;
+      margin-bottom:6px;
+      font-size:15px;
+    }
+
+    .hero-point span{
+      font-size:13px;
+      line-height:1.6;
+      color:rgba(255,255,255,.82);
+    }
+
+    .form-wrap{
+      padding:44px 36px;
+      background:rgba(255,255,255,.95);
+    }
+
+    .form-head h2{
+      font-size:28px;
+    }
+
+    .form-head p{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.7;
+    }
+
+    .error{
+      display:none;
+      margin:0 0 16px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid rgba(220,38,38,.16);
+      background:rgba(220,38,38,.08);
+      color:var(--danger);
+      font-size:13px;
+      line-height:1.6;
+    }
+
+    form{margin-top:28px}
+
+    .field{margin-bottom:18px}
+
+    .label{
+      display:block;
+      margin-bottom:8px;
+      font-size:14px;
+      font-weight:600;
+      color:#334155;
+    }
+
+    .input{
+      width:100%;
+      padding:14px 16px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      background:#fff;
+      color:var(--text);
+      font-size:15px;
+      transition:border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .input:focus{
+      outline:none;
+      border-color:rgba(15,118,110,.6);
+      box-shadow:0 0 0 4px rgba(15,118,110,.12);
+    }
+
+    .submit{
+      width:100%;
+      padding:14px 18px;
+      border:none;
+      border-radius:14px;
+      font-size:15px;
+      font-weight:700;
+      color:#fff;
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      box-shadow:0 14px 28px rgba(15,118,110,.24);
+      cursor:pointer;
+      transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+    }
+
+    .submit:hover:not(:disabled){
+      transform:translateY(-1px);
+      box-shadow:0 18px 30px rgba(15,118,110,.28);
+    }
+
+    .submit:disabled{
+      opacity:.78;
+      cursor:wait;
+    }
+
+    .footer{
+      margin-top:18px;
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7;
+    }
+
+    .footer strong{
+      color:var(--primary-dark);
+    }
+
+    @media (max-width:860px){
+      .panel{grid-template-columns:1fr}
+      .hero,.form-wrap{padding:32px 24px}
+      .hero h1{font-size:28px}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="panel">
+      <section class="hero">
+        <h1>账号密码登录</h1>
+        <p>
+          暂时不开放自助注册。
+        </p>
+
+      </section>
+
+      <section class="form-wrap">
+        <div class="form-head">
+          <h2>登录</h2>
+        </div>
+
+        <form id="login-form">
+          <div class="error" id="error-box"></div>
+
+          <div class="field">
+            <label class="label" for="username">用户名</label>
+            <input class="input" id="username" type="text" autocomplete="username" placeholder="请输入用户名" required />
+          </div>
+
+          <div class="field">
+            <label class="label" for="password">密码</label>
+            <input class="input" id="password" type="password" autocomplete="current-password" placeholder="请输入密码" required />
+          </div>
+
+          <button class="submit" type="submit" id="submit-btn">登录</button>
+        </form>
+
+        <div class="footer">
+          登录后会自动跳转。若需要新账号，请联系 <strong>管理员</strong>。
+        </div>
+      </section>
+    </div>
+  </div>
+
+<script src="crm-common.js"></script>
+<script>
+  function getApiBaseUrl() {
+    var params = new URLSearchParams(window.location.search);
+    var queryValue = params.get('apiBase');
+    var savedValue = localStorage.getItem('crm_api_base');
+    var rawBase = queryValue || savedValue;
+
+    if (rawBase) {
+      return rawBase.replace(/\/$/, '');
+    }
+
+    var hostname = window.location.hostname;
+    var protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+
+    if (window.location.protocol === 'file:' || !hostname) {
+      return 'http://127.0.0.1:8000';
+    }
+
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://127.0.0.1:8000';
+    }
+
+    return protocol + '//' + hostname + ':8000';
+  }
+
+  function showError(message) {
+    var box = document.getElementById('error-box');
+    box.textContent = message;
+    box.style.display = 'block';
+  }
+
+  function clearError() {
+    var box = document.getElementById('error-box');
+    box.textContent = '';
+    box.style.display = 'none';
+  }
+
+  async function login(username, password) {
+    var response = await fetch(getApiBaseUrl() + '/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password
+      })
+    });
+
+    var data = null;
+    try {
+      data = await response.json();
+    } catch (error) {
+      data = null;
+    }
+
+    if (!response.ok) {
+      throw new Error((data && data.detail) || '登录失败，请稍后重试。');
+    }
+
+    return data;
+  }
+
+  document.getElementById('login-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    clearError();
+
+    var submitButton = document.getElementById('submit-btn');
+    var username = document.getElementById('username').value.trim();
+    var password = document.getElementById('password').value;
+
+    if (!username || !password) {
+      showError('请输入完整的用户名和密码。');
+      return;
+    }
+
+    var originalText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = '登录中...';
+
+    try {
+      var apiBase = getApiBaseUrl();
+      var payload = await login(username, password);
+      CRMApp.setAuthSession(payload.user, payload.access_token, apiBase);
+      CRMApp.redirectToDefault(payload.user);
+    } catch (error) {
+      showError(error.message || '登录失败，请稍后重试。');
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = originalText;
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    if (CRMApp.isAuthenticated()) {
+      CRMApp.redirectToDefault();
+    }
+  });
+</script>
+</body>
+</html>

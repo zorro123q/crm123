@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>线索管理 - SalesPilot CRM</title>
+<style>
+:root{
+  --primary:#0ea5e9;
+  --primary-dark:#0284c7;
+  --success:#10b981;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+  --bg:#f1f5f9;
+  --surface:#ffffff;
+  --border:#e2e8f0;
+  --text:#1e293b;
+  --text2:#64748b;
+  --text3:#94a3b8;
+  --shadow:0 1px 3px rgba(15,23,42,.08),0 10px 22px rgba(15,23,42,.06);
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+html,body{
+  height:100%;
+}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  height:100vh;
+  overflow:hidden;
+}
+
+.sidebar{
+  width:236px;
+  flex-shrink:0;
+  height:100vh;
+  overflow-y:auto;
+  background:linear-gradient(180deg,#0f172a 0%,#1e3a5f 55%,#0f172a 100%);
+  color:#cbd5e1;
+  padding:22px 0;
+}
+
+.logo{
+  padding:0 20px 22px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.logo-title{
+  font-size:22px;
+  font-weight:800;
+  color:#fff;
+}
+
+.logo-sub{
+  font-size:12px;
+  color:#94a3b8;
+  margin-top:6px;
+}
+
+.nav{
+  padding:16px 12px 0;
+}
+
+.nav-section{
+  margin-bottom:10px;
+}
+
+.nav-label{
+  padding:0 12px 6px;
+  font-size:10px;
+  font-weight:700;
+  color:#64748b;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+
+.nav a{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:#94a3b8;
+  text-decoration:none;
+  padding:11px 12px;
+  border-radius:12px;
+  font-size:14px;
+  margin-bottom:6px;
+}
+
+.nav a:hover,
+.nav a.active{
+  background:rgba(14,165,233,.14);
+  color:#fff;
+}
+
+.main{
+  flex:1;
+  min-width:0;
+  height:100vh;
+  overflow:auto;
+  display:flex;
+  flex-direction:column;
+}
+
+.topbar{
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  padding:18px 24px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:20px;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
+.topbar h1{
+  font-size:24px;
+  font-weight:800;
+}
+
+.topbar p{
+  font-size:13px;
+  color:var(--text2);
+  margin-top:6px;
+  line-height:1.6;
+}
+
+.toolbar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.search{
+  padding:10px 14px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#fff;
+  width:240px;
+  font-size:14px;
+}
+
+.search:focus,
+.input:focus,
+.select:focus,
+.textarea:focus{
+  outline:none;
+  border-color:#7dd3fc;
+  box-shadow:0 0 0 3px rgba(14,165,233,.12);
+}
+
+.btn{
+  border:none;
+  border-radius:12px;
+  padding:10px 14px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.btn-primary{
+  background:linear-gradient(135deg,var(--primary),#2563eb);
+  color:#fff;
+}
+
+.btn-ghost{
+  background:#fff;
+  border:1px solid var(--border);
+  color:var(--text);
+}
+
+.avatar{
+  width:40px;
+  height:40px;
+  border-radius:14px;
+  background:linear-gradient(135deg,var(--primary),#2563eb);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#fff;
+  font-weight:800;
+}
+
+.content{
+  padding:24px;
+  flex:1;
+}
+
+.notice{
+  margin-bottom:18px;
+  padding:16px 18px;
+  border-radius:16px;
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  color:#9a3412;
+  line-height:1.7;
+  font-size:13px;
+  box-shadow:var(--shadow);
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:16px;
+  margin-bottom:18px;
+}
+
+.stat-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+
+.stat-label{
+  font-size:12px;
+  color:var(--text3);
+}
+
+.stat-value{
+  font-size:28px;
+  font-weight:800;
+  margin-top:8px;
+}
+
+.stat-hint{
+  font-size:12px;
+  color:var(--text2);
+  margin-top:8px;
+}
+
+.panel{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.panel-head{
+  padding:18px 20px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+}
+
+.panel-head h2{
+  font-size:18px;
+  font-weight:800;
+}
+
+.panel-head span{
+  font-size:13px;
+  color:var(--text2);
+}
+
+.table-wrap{
+  overflow:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:1120px;
+}
+
+th,td{
+  padding:14px 16px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+  font-size:13px;
+  vertical-align:middle;
+}
+
+th{
+  background:#f8fafc;
+  color:var(--text2);
+  font-size:12px;
+  font-weight:800;
+}
+
+tbody tr:hover{
+  background:#fafcff;
+}
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+}
+
+.pill-blue{
+  background:#eff6ff;
+  color:#1d4ed8;
+}
+
+.pill-green{
+  background:#ecfdf5;
+  color:#047857;
+}
+
+.pill-orange{
+  background:#fff7ed;
+  color:#c2410c;
+}
+
+.pill-red{
+  background:#fef2f2;
+  color:#b91c1c;
+}
+
+.action-btn{
+  border:none;
+  border-radius:10px;
+  padding:8px 12px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:700;
+}
+
+.action-edit{
+  background:#e0f2fe;
+  color:#0369a1;
+}
+
+.action-view{
+  background:#f1f5f9;
+  color:#475569;
+}
+
+.action-delete{
+  background:#fef2f2;
+  color:#b91c1c;
+}
+
+.action-group{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.empty{
+  padding:36px 20px;
+  text-align:center;
+  color:var(--text2);
+}
+
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.45);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:30;
+}
+
+.modal-overlay.active{
+  display:flex;
+}
+
+.modal{
+  width:min(980px,100%);
+  max-height:92vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:22px;
+  box-shadow:0 24px 70px rgba(15,23,42,.25);
+}
+
+.modal-head{
+  padding:18px 22px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.modal-head h3{
+  font-size:20px;
+  font-weight:800;
+}
+
+.modal-close{
+  border:none;
+  background:#f1f5f9;
+  border-radius:10px;
+  width:36px;
+  height:36px;
+  cursor:pointer;
+  font-size:20px;
+}
+
+.modal-body{
+  padding:22px;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+
+.form-group{
+  margin-bottom:14px;
+}
+
+.form-group label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  color:var(--text2);
+  margin-bottom:8px;
+}
+
+.input,
+.select,
+.textarea{
+  width:100%;
+  padding:11px 13px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  font-size:14px;
+  background:#fff;
+}
+
+.textarea{
+  min-height:96px;
+  resize:vertical;
+}
+
+.readonly{
+  background:#f8fafc;
+  color:#64748b;
+}
+
+.section-block{
+  margin-top:18px;
+  padding:18px;
+  border:1px solid var(--border);
+  border-radius:18px;
+  background:#fcfdff;
+}
+
+.section-block h4{
+  font-size:16px;
+  font-weight:800;
+  margin-bottom:8px;
+}
+
+.section-block p{
+  font-size:13px;
+  color:var(--text2);
+  line-height:1.6;
+  margin-bottom:14px;
+}
+
+.score-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+
+.score-boxes{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin:14px 0;
+}
+
+.score-box{
+  padding:14px 16px;
+  border-radius:16px;
+  background:#eff6ff;
+  border:1px solid #bfdbfe;
+}
+
+.score-box-label{
+  display:block;
+  font-size:12px;
+  color:#1d4ed8;
+  margin-bottom:6px;
+}
+
+.score-box strong{
+  font-size:24px;
+}
+
+.score-details{
+  display:grid;
+  gap:8px;
+}
+
+.score-detail-item{
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  padding:10px 12px;
+  border-radius:12px;
+  background:#f8fafc;
+  font-size:12px;
+  color:var(--text2);
+}
+
+.helper{
+  margin-top:8px;
+  font-size:12px;
+  color:var(--text2);
+  line-height:1.6;
+}
+
+.helper-warning{
+  display:none;
+  margin-top:12px;
+  padding:12px 14px;
+  border-radius:14px;
+  background:#fffbeb;
+  border:1px solid #fde68a;
+  color:#92400e;
+  font-size:12px;
+  line-height:1.6;
+}
+
+.modal-foot{
+  padding:18px 22px;
+  border-top:1px solid var(--border);
+  display:flex;
+  justify-content:flex-end;
+  gap:10px;
+}
+
+@media (max-width:1080px){
+  .stats{
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media (max-width:860px){
+  html,body{
+    height:auto;
+  }
+
+  body{
+    display:block;
+    height:auto;
+    overflow:auto;
+  }
+
+  .sidebar{
+    width:100%;
+    height:auto;
+    overflow:visible;
+    padding:14px;
+  }
+
+  .nav{
+    padding:16px 0 0;
+  }
+
+  .nav-section{
+    margin-bottom:10px;
+  }
+
+  .nav a{
+    margin:0 0 6px;
+  }
+
+  .main{
+    height:auto;
+    overflow:visible;
+    min-width:initial;
+  }
+
+  .topbar{
+    position:static;
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .toolbar{
+    justify-content:flex-start;
+  }
+
+  .search{
+    width:100%;
+  }
+
+  .stats,
+  .score-grid,
+  .score-boxes,
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-title">SalesPilot</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">
+        <div class="nav-label">概览</div>
+        <a href="crm-system.html">工作台</a>
+        <a href="page-dashboard.html">销售仪表盘</a>
+        <a href="page-funnel.html">商机漏斗</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">销售管理</div>
+        <a href="page-kanban.html">商机看板</a>
+        <a href="page-leads.html" class="active">线索管理</a>
+        <a href="page-opportunities.html">商机列表</a>
+        <a href="page-report.html">商机通报</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">AI 能力</div>
+        <a href="ai-input.html">AI 智能录入</a>
+        <a href="card-input.html">价值评估</a>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">配置</div>
+        <a href="page-metadata.html">元数据配置</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1>线索管理</h1>
+        <!-- <p>
+          同名线索允许重复创建，不会自动合并。
+          普通用户只能修改、删除自己录入的线索，管理员可以删除所有人的线索。
+          卡级由评分维度自动计算，不能手工选择。
+        </p> -->
+      </div>
+      <div class="toolbar">
+        <input class="search" id="search-input" type="text" placeholder="搜索线索、公司、来源、负责人">
+        <button class="btn btn-ghost" id="refresh-btn">刷新</button>
+        <button class="btn btn-primary" id="create-btn">新建线索</button>
+        <div class="avatar" id="user-avatar">U</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- <div class="notice">
+        删除接口已开启。
+        普通用户只能删除自己的线索，管理员可以删除全部线索。
+        如只想保留历史记录，也可以继续使用“已归档”状态。
+      </div> -->
+
+      <section class="stats">
+        <div class="stat-card">
+          <div class="stat-label">当前线索数</div>
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-hint">按当前筛选条件统计</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">我的线索</div>
+          <div class="stat-value" id="stat-mine">0</div>
+          <div class="stat-hint">按 owner_id 匹配</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">跟进中</div>
+          <div class="stat-value" id="stat-follow">0</div>
+          <div class="stat-hint">状态为 follow_up</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">高优先级</div>
+          <div class="stat-value" id="stat-high">0</div>
+          <div class="stat-hint">卡级为 A / B</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>线索列表</h2>
+            <span>新建时永远新增记录；编辑时只按主键 id 更新，不会按名称覆盖其他数据。</span>
+          </div>
+          <span id="result-count">0 条记录</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>线索名称</th>
+                <th>公司</th>
+                <th>来源</th>
+                <th>状态</th>
+                <th>总分</th>
+                <th>卡级</th>
+                <th>负责人</th>
+                <th>更新时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="lead-tbody"></tbody>
+          </table>
+          <div class="empty" id="empty-state" style="display:none">暂无线索数据</div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <div class="modal-overlay" id="lead-modal">
+    <div class="modal">
+      <div class="modal-head">
+        <h3 id="modal-title">新建线索</h3>
+        <button class="modal-close" id="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="lead-name">线索名称</label>
+            <input class="input" id="lead-name" type="text" placeholder="请输入线索名称">
+          </div>
+          <div class="form-group">
+            <label for="lead-company">公司名称</label>
+            <input class="input" id="lead-company" type="text" placeholder="请输入公司名称">
+          </div>
+          <div class="form-group">
+            <label for="lead-email">邮箱</label>
+            <input class="input" id="lead-email" type="email" placeholder="请输入联系邮箱">
+          </div>
+          <div class="form-group">
+            <label for="lead-phone">电话</label>
+            <input class="input" id="lead-phone" type="text" placeholder="请输入联系电话">
+          </div>
+          <div class="form-group">
+            <label for="lead-source">来源</label>
+            <select class="select" id="lead-source">
+              <option value="">请选择</option>
+              <option value="phone_marketing">电话营销</option>
+              <option value="customer_referral">客户转介绍</option>
+              <option value="website">官网</option>
+              <option value="exhibition">展会</option>
+              <option value="partner_referral">合作伙伴推荐</option>
+              <option value="other">其他</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="lead-status">状态</label>
+            <select class="select" id="lead-status">
+              <option value="new">新建</option>
+              <option value="follow_up">跟进中</option>
+              <option value="converted">已转化</option>
+              <option value="invalid">无效</option>
+              <option value="archived">已归档</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lead-notes">备注</label>
+          <textarea class="textarea" id="lead-notes" placeholder="记录备注、跟进重点或重复提醒说明。"></textarea>
+        </div>
+
+        <div class="helper-warning" id="lead-duplicate-warning"></div>
+
+        <div class="section-block">
+          <h4>评分维度</h4>
+          <p>请填写评分维度。卡级是自动输出结果，不允许手工修改。</p>
+          <div class="score-grid" id="lead-scoring-fields"></div>
+
+          <div class="score-boxes" id="lead-score-summary"></div>
+          <div class="score-details" id="lead-score-details"></div>
+          <div class="helper">页面会实时预览分数，但保存时以后端重新计算并返回的结果为准。</div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" id="cancel-btn">取消</button>
+        <button class="btn btn-primary" id="save-btn">保存线索</button>
+      </div>
+    </div>
+  </div>
+
+<script src="crm-common.js"></script>
+<script src="scoring-form.js"></script>
+<script>
+var currentUser = CRMApp.requireAuth('leads');
+var leads = [];
+var filteredLeads = [];
+var editingLeadId = null;
+var currentMode = 'create';
+var scoringFields = [];
+
+var statusLabels = {
+  new: '新建',
+  follow_up: '跟进中',
+  converted: '已转化',
+  invalid: '无效',
+  archived: '已归档'
+};
+
+function getLevelClass(level) {
+  if (level === 'A') return 'pill pill-green';
+  if (level === 'B') return 'pill pill-blue';
+  if (level === 'C') return 'pill pill-orange';
+  if (level === 'D') return 'pill pill-orange';
+  return 'pill pill-red';
+}
+
+function getStatusClass(status) {
+  if (status === 'converted') return 'pill pill-green';
+  if (status === 'invalid' || status === 'archived') return 'pill pill-red';
+  if (status === 'follow_up') return 'pill pill-blue';
+  return 'pill pill-orange';
+}
+
+function formatDate(value) {
+  if (!value) return '-';
+  return new Date(value).toLocaleString('zh-CN');
+}
+
+function normalizeLead(item) {
+  var custom = item.custom_fields || {};
+  var normalized = {
+    id: item.id,
+    ownerId: item.owner_id || (item.owner && item.owner.id) || '',
+    ownerName: item.owner_username || (item.owner && item.owner.username) || '未分配',
+    name: item.name || '',
+    company: item.company || '',
+    email: item.email || '',
+    phone: item.phone || '',
+    source: item.source || '',
+    status: item.status || 'new',
+    cardScore: Number(item.card_score || 0),
+    cardLevel: item.card_level || 'E',
+    notes: custom.notes || '',
+    updatedAt: item.updated_at || '',
+    createdAt: item.created_at || '',
+    raw: item
+  };
+
+  scoringFields.forEach(function(field) {
+    normalized[field.field] = item[field.field] || null;
+  });
+  return normalized;
+}
+
+function getScoringValues(item) {
+  var values = {};
+  scoringFields.forEach(function(field) {
+    values[field.field] = item && item[field.field] ? item[field.field] : null;
+  });
+  return values;
+}
+
+function setUserUI() {
+  document.getElementById('user-avatar').textContent = (currentUser.username || 'U').charAt(0).toUpperCase();
+}
+
+async function loadLeads() {
+  try {
+    var response = await CRMApp.apiRequest('/api/leads');
+    leads = (response || []).map(normalizeLead);
+    applyFilter();
+  } catch (error) {
+    alert(error.message || '加载线索失败。');
+  }
+}
+
+function applyFilter() {
+  var keyword = document.getElementById('search-input').value.trim().toLowerCase();
+  filteredLeads = leads.filter(function(item) {
+    if (!keyword) return true;
+    return [
+      item.name,
+      item.company,
+      item.source,
+      item.ownerName
+    ].join(' ').toLowerCase().indexOf(keyword) >= 0;
+  });
+  renderStats();
+  renderTable();
+}
+
+function renderStats() {
+  var total = filteredLeads.length;
+  var mine = filteredLeads.filter(function(item) { return String(item.ownerId) === String(currentUser.id); }).length;
+  var followCount = filteredLeads.filter(function(item) { return item.status === 'follow_up'; }).length;
+  var highCount = filteredLeads.filter(function(item) { return item.cardLevel === 'A' || item.cardLevel === 'B'; }).length;
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-mine').textContent = mine;
+  document.getElementById('stat-follow').textContent = followCount;
+  document.getElementById('stat-high').textContent = highCount;
+  document.getElementById('result-count').textContent = total + ' 条记录';
+}
+
+function renderTable() {
+  var tbody = document.getElementById('lead-tbody');
+  var empty = document.getElementById('empty-state');
+
+  if (!filteredLeads.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  tbody.innerHTML = filteredLeads.map(function(item) {
+    var editable = CRMApp.canEditOwner(currentUser, item.ownerId);
+    return '<tr>' +
+      '<td><strong>' + CRMApp.escapeHtml(item.name || '-') + '</strong></td>' +
+      '<td>' + CRMApp.escapeHtml(item.company || '-') + '</td>' +
+      '<td>' + CRMApp.escapeHtml(item.source || '-') + '</td>' +
+      '<td><span class="' + getStatusClass(item.status) + '">' + CRMApp.escapeHtml(statusLabels[item.status] || item.status) + '</span></td>' +
+      '<td>' + CRMApp.escapeHtml(item.cardScore) + '</td>' +
+      '<td><span class="' + getLevelClass(item.cardLevel) + '">' + CRMApp.escapeHtml(item.cardLevel || '-') + '</span></td>' +
+      '<td>' + CRMApp.escapeHtml(item.ownerName) + '</td>' +
+      '<td>' + CRMApp.escapeHtml(formatDate(item.updatedAt)) + '</td>' +
+      '<td><div class="action-group">' +
+        '<button class="action-btn ' + (editable ? 'action-edit' : 'action-view') + '" onclick="openDetailModal(\'' + item.id + '\')">' + (editable ? '编辑' : '查看') + '</button>' +
+        (editable ? '<button class="action-btn action-delete" onclick="deleteLead(\'' + item.id + '\')">删除</button>' : '') +
+      '</div></td>' +
+      '</tr>';
+  }).join('');
+}
+
+function updateLeadScorePreview() {
+  var result = CRMScoringForm.calculate(scoringFields, CRMScoringForm.getValues(document.getElementById('lead-scoring-fields')));
+  CRMScoringForm.renderPreview(
+    document.getElementById('lead-score-summary'),
+    document.getElementById('lead-score-details'),
+    result
+  );
+}
+
+function updateDuplicateWarning() {
+  var warningEl = document.getElementById('lead-duplicate-warning');
+  var name = document.getElementById('lead-name').value.trim().toLowerCase();
+  var company = document.getElementById('lead-company').value.trim().toLowerCase();
+  var phone = document.getElementById('lead-phone').value.trim().toLowerCase();
+
+  if (!name && !company && !phone) {
+    warningEl.style.display = 'none';
+    warningEl.textContent = '';
+    return;
+  }
+
+  var duplicates = leads.filter(function(item) {
+    if (editingLeadId && item.id === editingLeadId) {
+      return false;
+    }
+    var sameName = name && item.name && item.name.toLowerCase() === name;
+    var sameCompany = company && item.company && item.company.toLowerCase() === company;
+    var samePhone = phone && item.phone && item.phone.toLowerCase() === phone;
+    return sameName || (sameName && sameCompany) || samePhone;
+  });
+
+  if (!duplicates.length) {
+    warningEl.style.display = 'none';
+    warningEl.textContent = '';
+    return;
+  }
+
+  warningEl.style.display = 'block';
+  warningEl.textContent = '重复提醒：当前有 ' + duplicates.length + ' 条线索在名称、公司或电话上可能重复。保存时仍然只会创建新记录，或仅按当前 id 更新。';
+}
+
+function setFormReadOnly(readOnly) {
+  [
+    'lead-name',
+    'lead-company',
+    'lead-email',
+    'lead-phone',
+    'lead-source',
+    'lead-status',
+    'lead-notes'
+  ].forEach(function(id) {
+    var element = document.getElementById(id);
+    element.disabled = !!readOnly;
+    element.classList.toggle('readonly', !!readOnly);
+  });
+  CRMScoringForm.setDisabled(document.getElementById('lead-scoring-fields'), !!readOnly);
+}
+
+function fillForm(item, readOnly) {
+  var values = item || {
+    name: '',
+    company: '',
+    email: '',
+    phone: '',
+    source: '',
+    status: 'new',
+    notes: ''
+  };
+
+  document.getElementById('lead-name').value = values.name || '';
+  document.getElementById('lead-company').value = values.company || '';
+  document.getElementById('lead-email').value = values.email || '';
+  document.getElementById('lead-phone').value = values.phone || '';
+  document.getElementById('lead-source').value = values.source || '';
+  document.getElementById('lead-status').value = values.status || 'new';
+  document.getElementById('lead-notes').value = values.notes || '';
+  CRMScoringForm.setValues(document.getElementById('lead-scoring-fields'), scoringFields, getScoringValues(item));
+  updateLeadScorePreview();
+  updateDuplicateWarning();
+  setFormReadOnly(readOnly);
+}
+
+function openCreateModal() {
+  currentMode = 'create';
+  editingLeadId = null;
+  document.getElementById('modal-title').textContent = '新建线索';
+  document.getElementById('save-btn').textContent = '保存线索';
+  document.getElementById('save-btn').style.display = '';
+  fillForm(null, false);
+  document.getElementById('lead-modal').classList.add('active');
+}
+
+function openDetailModal(id) {
+  var item = leads.find(function(entry) { return entry.id === id; });
+  if (!item) return;
+
+  editingLeadId = id;
+  currentMode = 'edit';
+  var editable = CRMApp.canEditOwner(currentUser, item.ownerId);
+  document.getElementById('modal-title').textContent = editable ? '编辑线索' : '查看线索';
+  document.getElementById('save-btn').textContent = editable ? '保存修改' : '关闭';
+  document.getElementById('save-btn').style.display = '';
+  fillForm(item, !editable);
+  document.getElementById('lead-modal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('lead-modal').classList.remove('active');
+}
+
+function collectPayload() {
+  var name = document.getElementById('lead-name').value.trim();
+  if (!name) {
+    throw new Error('请先填写线索名称。');
+  }
+
+  return Object.assign({
+    name: name,
+    company: document.getElementById('lead-company').value.trim() || null,
+    email: document.getElementById('lead-email').value.trim() || null,
+    phone: document.getElementById('lead-phone').value.trim() || null,
+    source: document.getElementById('lead-source').value || null,
+    status: document.getElementById('lead-status').value || 'new',
+    custom_fields: {
+      notes: document.getElementById('lead-notes').value.trim()
+    }
+  }, CRMScoringForm.getValues(document.getElementById('lead-scoring-fields')));
+}
+
+async function saveLead() {
+  if (currentMode === 'edit') {
+    var existing = leads.find(function(entry) { return entry.id === editingLeadId; });
+    if (!existing || !CRMApp.canEditOwner(currentUser, existing.ownerId)) {
+      closeModal();
+      return;
+    }
+  }
+
+  try {
+    var payload = collectPayload();
+    if (currentMode === 'create') {
+      await CRMApp.apiRequest('/api/leads', { method: 'POST', body: payload });
+    } else {
+      await CRMApp.apiRequest('/api/leads/' + editingLeadId, { method: 'PATCH', body: payload });
+    }
+    closeModal();
+    await loadLeads();
+  } catch (error) {
+    alert(error.message || '保存线索失败。');
+  }
+}
+
+async function deleteLead(id) {
+  var existing = leads.find(function(entry) { return entry.id === id; });
+  if (!existing || !CRMApp.canEditOwner(currentUser, existing.ownerId)) {
+    return;
+  }
+
+  var confirmed = window.confirm('确认删除线索“' + (existing.name || '未命名线索') + '”？删除后不可恢复。');
+  if (!confirmed) {
+    return;
+  }
+
+  try {
+    await CRMApp.apiRequest('/api/leads/' + id, { method: 'DELETE' });
+    if (editingLeadId === id) {
+      closeModal();
+    }
+    await loadLeads();
+  } catch (error) {
+    alert(error.message || '删除线索失败。');
+  }
+}
+
+async function initPage() {
+  if (!currentUser) return;
+  setUserUI();
+
+  try {
+    var scoringPayload = await CRMApp.getScoringOptions();
+    scoringFields = (scoringPayload && scoringPayload.fields) || [];
+    CRMScoringForm.renderFields(document.getElementById('lead-scoring-fields'), scoringFields);
+    document.getElementById('lead-scoring-fields').addEventListener('change', updateLeadScorePreview);
+    updateLeadScorePreview();
+  } catch (error) {
+    alert(error.message || '加载评分维度失败。');
+    return;
+  }
+
+  await loadLeads();
+}
+
+document.getElementById('search-input').addEventListener('input', applyFilter);
+document.getElementById('refresh-btn').addEventListener('click', loadLeads);
+document.getElementById('create-btn').addEventListener('click', openCreateModal);
+document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+document.getElementById('cancel-btn').addEventListener('click', closeModal);
+document.getElementById('save-btn').addEventListener('click', function() {
+  if (document.getElementById('save-btn').textContent === '关闭') {
+    closeModal();
+    return;
+  }
+  saveLead();
+});
+['lead-name', 'lead-company', 'lead-phone'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', updateDuplicateWarning);
+});
+document.getElementById('lead-modal').addEventListener('click', function(event) {
+  if (event.target === this) closeModal();
+});
+
+initPage();
+</script>
+</body>
+</html>
