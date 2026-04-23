@@ -49,8 +49,9 @@ def build_report_rows(opportunities: Iterable) -> list[OpportunityReportRow]:
         if status == "won":
             row.won_count += 1
 
+        opportunity_level = str(getattr(item, "opportunity_level", "") or "").strip().upper()
         card_level = str(getattr(item, "card_level", "") or "").strip().upper()
-        if card_level in {"A", "B"}:
+        if opportunity_level in {"A", "B"} or (not opportunity_level and card_level in {"A", "B"}):
             row.high_priority_count += 1
 
         created_at = getattr(item, "created_at", None)

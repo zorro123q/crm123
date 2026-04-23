@@ -38,6 +38,44 @@ from app.services.scoring_service import SCORING_FIELD_KEYS, calculate_card_scor
 
 router = APIRouter(prefix="/api/opportunities", tags=["opportunities"])
 
+BUSINESS_FIELD_KEYS = (
+    "customer_name",
+    "customer_type",
+    "requirement_desc",
+    "product_name",
+    "estimated_cycle",
+    "opportunity_level",
+    "project_date",
+    "project_members",
+    "solution_communication",
+    "poc_status",
+    "key_person_approved",
+    "bid_probability",
+    "contract_negotiation",
+    "project_type",
+    "contract_signed",
+    "handoff_completed",
+)
+
+LEGACY_CUSTOM_FIELD_ALIASES = {
+    "customer_name": ("customer_name", "company"),
+    "customer_type": ("customer_type",),
+    "requirement_desc": ("requirement_desc", "notes", "demand"),
+    "product_name": ("product_name", "product"),
+    "estimated_cycle": ("estimated_cycle",),
+    "opportunity_level": ("opportunity_level", "level"),
+    "project_date": ("project_date",),
+    "project_members": ("project_members",),
+    "solution_communication": ("solution_communication",),
+    "poc_status": ("poc_status",),
+    "key_person_approved": ("key_person_approved", "approve"),
+    "bid_probability": ("bid_probability", "bcard"),
+    "contract_negotiation": ("contract_negotiation",),
+    "project_type": ("project_type",),
+    "contract_signed": ("contract_signed", "signed"),
+    "handoff_completed": ("handoff_completed",),
+}
+
 
 def _parse_iso_datetime(value: str | None) -> datetime | None:
     if not value:
@@ -51,8 +89,89 @@ def _parse_iso_datetime(value: str | None) -> datetime | None:
     return parsed
 
 
+def _pick_first_non_empty(*values):
+    for value in values:
+        if value is None:
+            continue
+        if isinstance(value, str):
+            trimmed = value.strip()
+            if trimmed == "":
+                continue
+            return trimmed
+        return value
+    return None
+
+
+def _normalize_business_payload(data: dict) -> dict:
+    normalized = dict(data)
+    custom_fields = dict(normalized.get("custom_fields") or {})
+
+    for field_name, aliases in LEGACY_CUSTOM_FIELD_ALIASES.items():
+        top_value = normalized.get(field_name)
+        alias_values = [custom_fields.get(alias) for alias in aliases]
+        normalized[field_name] = _pick_first_non_empty(top_value, *alias_values)
+
+    normalized["custom_fields"] = custom_fields
+    return normalized
+
+
 def _opportunity_dimensions_from_model(opportunity: Opportunity) -> dict[str, str | None]:
     return {field_name: getattr(opportunity, field_name) for field_name in SCORING_FIELD_KEYS}
+
+
+def _opportunity_dimensions_from_payload(data: dict) -> dict[str, str | None]:
+    return {field_name: data.get(field_name) for field_name in SCORING_FIELD_KEYS}
+
+
+def _build_opportunity_name(data: dict) -> str:
+    raw_name = str(data.get("name") or "").strip()
+    if raw_name:
+        return raw_name
+
+    customer_name = str(data.get("customer_name") or "").strip()
+    product_name = str(data.get("product_name") or "").strip()
+
+    if customer_name and product_name:
+        return f"{customer_name} - {product_name}"
+    if customer_name:
+        return customer_name
+    if product_name:
+        return product_name
+    return "未命名商机"
+
+
+def _merge_custom_fields(existing: dict | None, data: dict) -> dict:
+    merged = {**(existing or {})}
+
+    for field_name in BUSINESS_FIELD_KEYS:
+        value = data.get(field_name)
+        if value is not None:
+            merged[field_name] = value
+
+    # 继续保留旧字段名，兼容旧页面/旧数据
+    if data.get("customer_name") is not None:
+        merged["company"] = data.get("customer_name")
+    if data.get("requirement_desc") is not None:
+        merged["notes"] = data.get("requirement_desc")
+        merged["demand"] = data.get("requirement_desc")
+    if data.get("product_name") is not None:
+        merged["product"] = data.get("product_name")
+    if data.get("opportunity_level") is not None:
+        merged["level"] = data.get("opportunity_level")
+    if data.get("bid_probability") is not None:
+        merged["bcard"] = data.get("bid_probability")
+    if data.get("key_person_approved") is not None:
+        merged["approve"] = data.get("key_person_approved")
+    if data.get("contract_signed") is not None:
+        merged["signed"] = data.get("contract_signed")
+
+    return merged
+
+
+def _apply_business_fields(opportunity: Opportunity, data: dict):
+    for field_name in BUSINESS_FIELD_KEYS:
+        if field_name in data:
+            setattr(opportunity, field_name, data[field_name])
 
 
 def _sync_stage_state(
@@ -82,7 +201,10 @@ def _sync_stage_state(
     opportunity.probability = (
         override_probability
         if override_probability is not None
-        else STAGE_DEFAULT_PROBABILITY.get(normalized_stage, STAGE_DEFAULT_PROBABILITY[DEFAULT_OPPORTUNITY_STAGE])
+        else STAGE_DEFAULT_PROBABILITY.get(
+            normalized_stage,
+            STAGE_DEFAULT_PROBABILITY[DEFAULT_OPPORTUNITY_STAGE],
+        )
     )
 
     if normalized_stage in {WON_STAGE, LOST_STAGE}:
@@ -171,16 +293,19 @@ async def create_opportunity(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    data = payload.model_dump(exclude_unset=True)
-    scoring = calculate_card_score(data)
+    raw_data = payload.model_dump(exclude_unset=True)
+    data = _normalize_business_payload(raw_data)
+
+    scoring = calculate_card_score(_opportunity_dimensions_from_payload(data))
     now = datetime.now(timezone.utc)
+
     stage = normalize_opportunity_stage(data.get("stage"))
     status = str(data.get("status") or "new").strip().lower()
     if status != "archived":
         status = derive_opportunity_status(stage, status)
 
     opportunity = Opportunity(
-        name=data["name"],
+        name=_build_opportunity_name(data),
         account_id=str(data["account_id"]) if data.get("account_id") else None,
         contact_id=str(data["contact_id"]) if data.get("contact_id") else None,
         owner_id=current_user.id,
@@ -195,9 +320,26 @@ async def create_opportunity(
         ai_confidence=data.get("ai_confidence"),
         ai_raw_text=data.get("ai_raw_text"),
         ai_extracted=data.get("ai_extracted") or {},
-        custom_fields=data.get("custom_fields") or {},
+        custom_fields=_merge_custom_fields(data.get("custom_fields") or {}, data),
+        customer_name=data.get("customer_name"),
+        customer_type=data.get("customer_type"),
+        requirement_desc=data.get("requirement_desc"),
+        product_name=data.get("product_name"),
+        estimated_cycle=data.get("estimated_cycle"),
+        opportunity_level=data.get("opportunity_level"),
+        project_date=data.get("project_date"),
+        project_members=data.get("project_members"),
+        solution_communication=data.get("solution_communication"),
+        poc_status=data.get("poc_status"),
+        key_person_approved=data.get("key_person_approved"),
+        bid_probability=data.get("bid_probability"),
+        contract_negotiation=data.get("contract_negotiation"),
+        project_type=data.get("project_type"),
+        contract_signed=data.get("contract_signed"),
+        handoff_completed=data.get("handoff_completed"),
         **scoring.dimensions,
     )
+
     _sync_stage_state(opportunity, stage, now, override_probability=data.get("probability"))
     db.add(opportunity)
     await db.commit()
@@ -214,12 +356,16 @@ async def update_opportunity(
     current_user: User = Depends(get_current_user),
 ):
     opportunity = await _get_opp_or_403(opp_id, db, current_user)
-    data = payload.model_dump(exclude_unset=True)
+
+    raw_data = payload.model_dump(exclude_unset=True)
+    data = _normalize_business_payload(raw_data)
     custom_fields = data.pop("custom_fields", None)
 
     for field_name in ("name", "amount", "close_date", "source"):
         if field_name in data:
             setattr(opportunity, field_name, data[field_name])
+
+    _apply_business_fields(opportunity, data)
 
     next_stage = data.get("stage", opportunity.stage)
     next_status = data.get("status", opportunity.status)
@@ -253,6 +399,8 @@ async def update_opportunity(
 
     if custom_fields is not None:
         opportunity.custom_fields = {**(opportunity.custom_fields or {}), **custom_fields}
+
+    opportunity.custom_fields = _merge_custom_fields(opportunity.custom_fields or {}, data)
 
     await db.commit()
     await db.refresh(opportunity)

@@ -98,9 +98,15 @@ class ScoringDimensionsInput(BaseModel):
                 raise ValueError(f"Invalid scoring option for {field_name}: {value}")
         return self
 
+    def to_dimensions_dict(self) -> dict[str, str | None]:
+        return {field_name: getattr(self, field_name) for field_name in SCORING_FIELD_KEYS}
+
+    def has_any_value(self) -> bool:
+        return any(getattr(self, field_name) not in (None, "") for field_name in SCORING_FIELD_KEYS)
+
 
 class OpportunityCreate(ScoringDimensionsInput):
-    name: str = Field(..., min_length=1, max_length=500)
+    name: str | None = Field(None, min_length=1, max_length=500)
     account_id: UUID | None = None
     contact_id: UUID | None = None
     stage: str = DEFAULT_OPPORTUNITY_STAGE
@@ -113,6 +119,24 @@ class OpportunityCreate(ScoringDimensionsInput):
     ai_raw_text: str | None = None
     ai_extracted: dict[str, Any] | None = None
     custom_fields: dict[str, Any] = Field(default_factory=dict)
+
+    # 客户商机管理表字段
+    customer_name: str | None = Field(None, max_length=255)
+    customer_type: str | None = Field(None, max_length=50)
+    requirement_desc: str | None = None
+    product_name: str | None = Field(None, max_length=255)
+    estimated_cycle: str | None = Field(None, max_length=100)
+    opportunity_level: str | None = Field(None, max_length=10)
+    project_date: str | None = Field(None, max_length=100)
+    project_members: str | None = None
+    solution_communication: str | None = None
+    poc_status: str | None = None
+    key_person_approved: str | None = Field(None, max_length=20)
+    bid_probability: str | None = Field(None, max_length=10)
+    contract_negotiation: str | None = None
+    project_type: str | None = Field(None, max_length=100)
+    contract_signed: str | None = Field(None, max_length=20)
+    handoff_completed: str | None = Field(None, max_length=20)
 
     @field_validator("stage")
     @classmethod
@@ -127,6 +151,12 @@ class OpportunityCreate(ScoringDimensionsInput):
             raise ValueError(f"Status must be one of: {', '.join(OPPORTUNITY_STATUSES)}")
         return normalized
 
+    @model_validator(mode="after")
+    def validate_business_identity(self):
+        if not ((self.name or "").strip() or (self.customer_name or "").strip()):
+            raise ValueError("Either name or customer_name is required")
+        return self
+
 
 class OpportunityUpdate(ScoringDimensionsInput):
     name: str | None = None
@@ -137,6 +167,24 @@ class OpportunityUpdate(ScoringDimensionsInput):
     close_date: date | None = None
     source: str | None = None
     custom_fields: dict[str, Any] | None = None
+
+    # 客户商机管理表字段
+    customer_name: str | None = Field(None, max_length=255)
+    customer_type: str | None = Field(None, max_length=50)
+    requirement_desc: str | None = None
+    product_name: str | None = Field(None, max_length=255)
+    estimated_cycle: str | None = Field(None, max_length=100)
+    opportunity_level: str | None = Field(None, max_length=10)
+    project_date: str | None = Field(None, max_length=100)
+    project_members: str | None = None
+    solution_communication: str | None = None
+    poc_status: str | None = None
+    key_person_approved: str | None = Field(None, max_length=20)
+    bid_probability: str | None = Field(None, max_length=10)
+    contract_negotiation: str | None = None
+    project_type: str | None = Field(None, max_length=100)
+    contract_signed: str | None = Field(None, max_length=20)
+    handoff_completed: str | None = Field(None, max_length=20)
 
     @field_validator("stage")
     @classmethod
@@ -169,6 +217,7 @@ class OpportunityOut(BaseModel):
     source: str | None = None
     card_score: int = 0
     card_level: str = "E"
+
     industry: str | None = None
     industry_rank: str | None = None
     scene: str | None = None
@@ -183,6 +232,25 @@ class OpportunityOut(BaseModel):
     has_ai_project: str | None = None
     customer_service_size: str | None = None
     region: str | None = None
+
+    # 客户商机管理表字段
+    customer_name: str | None = None
+    customer_type: str | None = None
+    requirement_desc: str | None = None
+    product_name: str | None = None
+    estimated_cycle: str | None = None
+    opportunity_level: str | None = None
+    project_date: str | None = None
+    project_members: str | None = None
+    solution_communication: str | None = None
+    poc_status: str | None = None
+    key_person_approved: str | None = None
+    bid_probability: str | None = None
+    contract_negotiation: str | None = None
+    project_type: str | None = None
+    contract_signed: str | None = None
+    handoff_completed: str | None = None
+
     score_detail_json: dict[str, Any] = Field(default_factory=dict)
     ai_confidence: float | None = None
     custom_fields: dict[str, Any] = Field(default_factory=dict)
@@ -193,8 +261,7 @@ class OpportunityOut(BaseModel):
     is_active: bool = True
     created_at: datetime
     updated_at: datetime
-
-
+########
 class StageMoveRequest(BaseModel):
     stage: str
     opp_id: UUID
@@ -313,16 +380,31 @@ class CardEvaluateRequest(BaseModel):
     industry: str | None = Field(None, max_length=100)
     opportunity_name: str | None = Field(None, max_length=255)
     amount: float | None = Field(None, ge=0)
+    analysis_mode: Literal["ai", "manual", "hybrid"] = "hybrid"
+    ai_dimensions: ScoringDimensionsInput | None = None
+    manual_dimensions: ScoringDimensionsInput | None = None
     text: str = Field("", max_length=10000)
 
     @model_validator(mode="after")
     def validate_inputs(self):
-        if self.card_type == "A" and not ((self.company or "").strip() or self.text.strip()):
-            raise ValueError("A-card evaluation needs a company name or description")
-        if self.card_type == "B" and not (
-            (self.company or "").strip() or (self.opportunity_name or "").strip() or self.text.strip()
-        ):
-            raise ValueError("B-card evaluation needs company, opportunity name, or description")
+        has_text = bool(self.text.strip())
+        has_ai_dimensions = self.ai_dimensions is not None
+        has_manual_dimensions = self.manual_dimensions is not None and self.manual_dimensions.has_any_value()
+
+        if self.analysis_mode == "manual":
+            if not has_manual_dimensions:
+                raise ValueError("manual mode requires at least one manual dimension")
+            return self
+
+        if self.analysis_mode == "ai":
+            if not has_text:
+                raise ValueError("ai mode requires text")
+            return self
+
+        if not has_manual_dimensions and not has_ai_dimensions and not has_text:
+            raise ValueError("hybrid mode requires manual dimensions or AI input")
+        if not has_ai_dimensions and not has_text:
+            raise ValueError("hybrid mode requires text when ai_dimensions is not provided")
         return self
 
 
@@ -331,6 +413,9 @@ class CardDimensionScore(BaseModel):
     name: str
     score: int
     max_score: int
+    selected_value: str | None = None
+    selected_label: str | None = None
+    source: Literal["manual", "ai", "none"]
 
 
 class CardEvaluateResponse(BaseModel):
@@ -342,6 +427,9 @@ class CardEvaluateResponse(BaseModel):
     grade_label: str
     rating_desc: str
     suggestion: str
+    ai_dimensions: ScoringDimensionsInput | None = None
+    manual_dimensions: ScoringDimensionsInput | None = None
+    merged_dimensions: ScoringDimensionsInput
     dimensions: list[CardDimensionScore]
 
 

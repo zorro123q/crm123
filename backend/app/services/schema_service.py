@@ -50,7 +50,26 @@ OPPORTUNITY_COLUMN_DEFINITIONS = {
     "has_ai_project": "VARCHAR(50) NULL AFTER bidding_type",
     "customer_service_size": "VARCHAR(100) NULL AFTER has_ai_project",
     "region": "VARCHAR(100) NULL AFTER customer_service_size",
-    "score_detail_json": "JSON NULL AFTER custom_fields",
+
+    # 新增：客户商机管理表正式业务列
+    "customer_name": "VARCHAR(255) NULL AFTER custom_fields",
+    "customer_type": "VARCHAR(50) NULL AFTER customer_name",
+    "requirement_desc": "TEXT NULL AFTER customer_type",
+    "product_name": "VARCHAR(255) NULL AFTER requirement_desc",
+    "estimated_cycle": "VARCHAR(100) NULL AFTER product_name",
+    "opportunity_level": "VARCHAR(10) NULL AFTER estimated_cycle",
+    "project_date": "VARCHAR(100) NULL AFTER opportunity_level",
+    "project_members": "TEXT NULL AFTER project_date",
+    "solution_communication": "TEXT NULL AFTER project_members",
+    "poc_status": "TEXT NULL AFTER solution_communication",
+    "key_person_approved": "VARCHAR(20) NULL AFTER poc_status",
+    "bid_probability": "VARCHAR(10) NULL AFTER key_person_approved",
+    "contract_negotiation": "TEXT NULL AFTER bid_probability",
+    "project_type": "VARCHAR(100) NULL AFTER contract_negotiation",
+    "contract_signed": "VARCHAR(20) NULL AFTER project_type",
+    "handoff_completed": "VARCHAR(20) NULL AFTER contract_signed",
+
+    "score_detail_json": "JSON NULL AFTER handoff_completed",
 }
 
 LEAD_FIXUP_STATEMENTS = [
@@ -107,6 +126,76 @@ OPPORTUNITY_FIXUP_STATEMENTS = [
         WHEN card_score < 70 THEN 'B'
         ELSE 'A'
     END
+    """,
+    """
+    UPDATE opportunities
+    SET
+        customer_name = COALESCE(
+            NULLIF(customer_name, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.customer_name')), ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.company')), '')
+        ),
+        customer_type = COALESCE(
+            NULLIF(customer_type, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.customer_type')), '')
+        ),
+        requirement_desc = COALESCE(
+            NULLIF(requirement_desc, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.requirement_desc')), ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.notes')), '')
+        ),
+        product_name = COALESCE(
+            NULLIF(product_name, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.product_name')), '')
+        ),
+        estimated_cycle = COALESCE(
+            NULLIF(estimated_cycle, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.estimated_cycle')), '')
+        ),
+        opportunity_level = COALESCE(
+            NULLIF(opportunity_level, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.opportunity_level')), '')
+        ),
+        project_date = COALESCE(
+            NULLIF(project_date, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.project_date')), '')
+        ),
+        project_members = COALESCE(
+            NULLIF(project_members, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.project_members')), '')
+        ),
+        solution_communication = COALESCE(
+            NULLIF(solution_communication, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.solution_communication')), '')
+        ),
+        poc_status = COALESCE(
+            NULLIF(poc_status, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.poc_status')), '')
+        ),
+        key_person_approved = COALESCE(
+            NULLIF(key_person_approved, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.key_person_approved')), '')
+        ),
+        bid_probability = COALESCE(
+            NULLIF(bid_probability, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.bid_probability')), '')
+        ),
+        contract_negotiation = COALESCE(
+            NULLIF(contract_negotiation, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.contract_negotiation')), '')
+        ),
+        project_type = COALESCE(
+            NULLIF(project_type, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.project_type')), '')
+        ),
+        contract_signed = COALESCE(
+            NULLIF(contract_signed, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.contract_signed')), '')
+        ),
+        handoff_completed = COALESCE(
+            NULLIF(handoff_completed, ''),
+            NULLIF(JSON_UNQUOTE(JSON_EXTRACT(custom_fields, '$.handoff_completed')), '')
+        )
     """,
     """
     UPDATE opportunities
