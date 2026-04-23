@@ -217,7 +217,7 @@ body{
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:1480px;
+  min-width:1800px;
 }
 th,td{
   padding:14px 16px;
@@ -370,12 +370,6 @@ tbody tr:hover{
   background:#f8fafc !important;
   color:#64748b !important;
 }
-.helper{
-  margin-top:8px;
-  font-size:12px;
-  color:var(--text2);
-  line-height:1.7;
-}
 .helper-warning{
   display:none;
   margin-bottom:16px;
@@ -467,17 +461,12 @@ tbody tr:hover{
       <div>
         <h1>客户商机管理表</h1>
         <p>
-          按“商机信息、立项信息、方案认可、评价模型、签订合同”五个板块管理客户商机。
-          页面默认沿用原有商机接口，新增字段统一存入 custom_fields，便于你先改前端再逐步对接后端。
+          当前页面同时兼容新版正式字段与旧版 custom_fields 历史数据。
+          如果历史记录还未完成回填，页面也会优先从 custom_fields 中读取兼容展示。
         </p>
       </div>
       <div class="toolbar">
-        <input
-          class="search"
-          id="search-input"
-          type="text"
-          placeholder="搜索负责人、客户、产品、需求、项目类型"
-        />
+        <input class="search" id="search-input" type="text" placeholder="搜索负责人、客户、产品、需求、项目类型">
         <button class="btn btn-ghost" id="refresh-btn">刷新</button>
         <button class="btn btn-primary" id="create-btn">新建商机</button>
         <div class="avatar" id="user-avatar">U</div>
@@ -486,8 +475,7 @@ tbody tr:hover{
 
     <div class="content">
       <div class="notice">
-        当前页面已按客户商机管理表重构：列表页展示关键字段，弹窗页分模块录入明细。
-        为兼容旧接口，预算仍映射到 amount，系统内部仍保留 name/stage/status，但页面以你定义的业务字段为主。
+        列表优先读取正式列，如果正式列为空，会自动回退读取 custom_fields 里的历史键名（如 company、product、level、bcard、signed、approve、demand）。
       </div>
 
       <section class="stats">
@@ -534,8 +522,12 @@ tbody tr:hover{
                 <th>预估成交周期</th>
                 <th>商机等级</th>
                 <th>立项日期</th>
+                <th>项目组成员</th>
+                <th>解决方案沟通</th>
+                <th>POC测试情况</th>
                 <th>关键人认可</th>
                 <th>B卡中标概率</th>
+                <th>合同谈判情况</th>
                 <th>项目类型</th>
                 <th>是否签约</th>
                 <th>是否完成交底</th>
@@ -743,6 +735,23 @@ tbody tr:hover{
             </div>
           </div>
         </section>
+
+        <!-- 评分维度字段（隐藏，用于后端评分计算） -->
+        <div style="display:none">
+          <input id="opp-industry" type="text" value="" />
+          <input id="opp-industry-rank" type="text" value="" />
+          <input id="opp-scene" type="text" value="" />
+          <input id="opp-labor-cost" type="text" value="" />
+          <input id="opp-daily-calls" type="text" value="" />
+          <input id="opp-leader-owner" type="text" value="" />
+          <input id="opp-lowest-price" type="text" value="" />
+          <input id="opp-initiator-department" type="text" value="" />
+          <input id="opp-competitor" type="text" value="" />
+          <input id="opp-bidding-type" type="text" value="" />
+          <input id="opp-has-ai-project" type="text" value="" />
+          <input id="opp-customer-service-size" type="text" value="" />
+          <input id="opp-region" type="text" value="" />
+        </div>
       </div>
 
       <div class="modal-foot">
@@ -759,39 +768,6 @@ var opportunities = [];
 var filteredOpportunities = [];
 var editingOppId = null;
 var currentMode = 'create';
-
-var STAGES = {
-  initial: '初步接触',
-  quote: '方案报价',
-  negotiation: '合同谈判',
-  won: '赢单'
-};
-
-function escapeHtml(value) {
-  return CRMApp && CRMApp.escapeHtml ? CRMApp.escapeHtml(value == null ? '' : String(value)) : String(value || '');
-}
-
-function getLevelClass(level) {
-  if (level === 'A') return 'pill pill-green';
-  if (level === 'B') return 'pill pill-blue';
-  if (level === 'C') return 'pill pill-orange';
-  if (level === 'D') return 'pill pill-orange';
-  if (level === 'E') return 'pill pill-red';
-  return 'pill pill-gray';
-}
-
-function getBoolClass(value) {
-  if (value === '是') return 'pill pill-green';
-  if (value === '否') return 'pill pill-red';
-  return 'pill pill-gray';
-}
-
-function getCustomerTypeClass(value) {
-  if (value === '新客户') return 'pill pill-blue';
-  if (value === '老客户') return 'pill pill-green';
-  if (value === '老客户新部门') return 'pill pill-orange';
-  return 'pill pill-gray';
-}
 
 function formatDate(value) {
   if (!value) return '-';
@@ -812,11 +788,33 @@ function formatAmount(value) {
   });
 }
 
+function getBoolClass(value) {
+  if (value === '是') return 'pill pill-green';
+  if (value === '否') return 'pill pill-red';
+  return 'pill pill-gray';
+}
+
+function getCustomerTypeClass(value) {
+  if (value === '新客户') return 'pill pill-blue';
+  if (value === '老客户') return 'pill pill-green';
+  if (value === '老客户新部门') return 'pill pill-orange';
+  return 'pill pill-gray';
+}
+
+function getLevelClass(level) {
+  if (level === 'A') return 'pill pill-green';
+  if (level === 'B') return 'pill pill-blue';
+  if (level === 'C') return 'pill pill-orange';
+  if (level === 'D') return 'pill pill-orange';
+  if (level === 'E') return 'pill pill-red';
+  return 'pill pill-gray';
+}
+
 function deriveStageFromForm(data) {
-  if (data.contractSigned === '是') return STAGES.won;
-  if (data.contractNegotiation && data.contractNegotiation.trim()) return STAGES.negotiation;
-  if (data.solutionCommunication || data.pocStatus || data.keyPersonApproved === '是') return STAGES.quote;
-  return STAGES.initial;
+  if (data.contractSigned === '是') return '赢单';
+  if (data.contractNegotiation) return '合同谈判';
+  if (data.solutionCommunication || data.pocStatus || data.keyPersonApproved === '是') return '方案报价';
+  return '初步接触';
 }
 
 function deriveStatusFromForm(data) {
@@ -830,25 +828,28 @@ function normalizeOpportunity(item) {
     id: item.id,
     ownerId: item.owner_id || (item.owner && item.owner.id) || '',
     ownerName: item.owner_username || (item.owner && item.owner.username) || custom.owner_name_display || '未分配',
-    customerName: custom.customer_name || custom.company || '',
-    customerType: custom.customer_type || '',
-    requirementDesc: custom.requirement_desc || custom.notes || '',
-    productName: custom.product_name || '',
+
+    customerName: item.customer_name || custom.customer_name || custom.company || '',
+    customerType: item.customer_type || custom.customer_type || '',
+    requirementDesc: item.requirement_desc || custom.requirement_desc || custom.notes || custom.demand || '',
+    productName: item.product_name || custom.product_name || custom.product || '',
     budget: item.amount !== null && item.amount !== undefined ? Number(item.amount) : '',
-    estimatedCycle: custom.estimated_cycle || '',
-    opportunityLevel: custom.opportunity_level || item.card_level || '',
-    projectDate: custom.project_date || '',
-    projectMembers: custom.project_members || '',
-    solutionCommunication: custom.solution_communication || '',
-    pocStatus: custom.poc_status || '',
-    keyPersonApproved: custom.key_person_approved || '',
-    bidProbability: custom.bid_probability || '',
-    contractNegotiation: custom.contract_negotiation || '',
-    projectType: custom.project_type || '',
-    contractSigned: custom.contract_signed || '',
-    handoffCompleted: custom.handoff_completed || '',
+    estimatedCycle: item.estimated_cycle || custom.estimated_cycle || '',
+    opportunityLevel: item.opportunity_level || custom.opportunity_level || custom.level || '',
+    projectDate: item.project_date || custom.project_date || '',
+    projectMembers: item.project_members || custom.project_members || '',
+    solutionCommunication: item.solution_communication || custom.solution_communication || '',
+    pocStatus: item.poc_status || custom.poc_status || '',
+    keyPersonApproved: item.key_person_approved || custom.key_person_approved || custom.approve || '',
+    bidProbability: item.bid_probability || custom.bid_probability || custom.bcard || '',
+    contractNegotiation: item.contract_negotiation || custom.contract_negotiation || '',
+    projectType: item.project_type || custom.project_type || '',
+    contractSigned: item.contract_signed || custom.contract_signed || custom.signed || '',
+    handoffCompleted: item.handoff_completed || custom.handoff_completed || '',
+
+    stage: item.stage || '初步接触',
+    status: item.status || 'new',
     updatedAt: item.updated_at || '',
-    name: item.name || '',
     raw: item
   };
 }
@@ -871,7 +872,9 @@ function getSearchText(item) {
     item.contractNegotiation,
     item.projectType,
     item.contractSigned,
-    item.handoffCompleted
+    item.handoffCompleted,
+    item.stage,
+    item.status
   ].join(' ').toLowerCase();
 }
 
@@ -901,6 +904,7 @@ async function loadOpportunities() {
     opportunities = allRows.map(normalizeOpportunity);
     applyFilter();
   } catch (error) {
+    console.error(error);
     alert(error.message || '加载商机失败。');
   }
 }
@@ -953,20 +957,24 @@ function renderTable() {
 
     return ''
       + '<tr>'
-      +   '<td>' + escapeHtml(item.ownerName || '-') + '</td>'
-      +   '<td><strong>' + escapeHtml(item.customerName || '-') + '</strong></td>'
-      +   '<td><span class="' + getCustomerTypeClass(item.customerType) + '">' + escapeHtml(item.customerType || '-') + '</span></td>'
-      +   '<td>' + escapeHtml(item.productName || '-') + '</td>'
-      +   '<td>' + escapeHtml(formatAmount(item.budget)) + '</td>'
-      +   '<td>' + escapeHtml(item.estimatedCycle || '-') + '</td>'
-      +   '<td><span class="' + getLevelClass(item.opportunityLevel) + '">' + escapeHtml(item.opportunityLevel || '-') + '</span></td>'
-      +   '<td>' + escapeHtml(item.projectDate || '-') + '</td>'
-      +   '<td><span class="' + getBoolClass(item.keyPersonApproved) + '">' + escapeHtml(item.keyPersonApproved || '-') + '</span></td>'
-      +   '<td><span class="' + getLevelClass(item.bidProbability) + '">' + escapeHtml(item.bidProbability || '-') + '</span></td>'
-      +   '<td>' + escapeHtml(item.projectType || '-') + '</td>'
-      +   '<td><span class="' + getBoolClass(item.contractSigned) + '">' + escapeHtml(item.contractSigned || '-') + '</span></td>'
-      +   '<td><span class="' + getBoolClass(item.handoffCompleted) + '">' + escapeHtml(item.handoffCompleted || '-') + '</span></td>'
-      +   '<td>' + escapeHtml(formatDate(item.updatedAt)) + '</td>'
+      +   '<td>' + CRMApp.escapeHtml(item.ownerName || '-') + '</td>'
+      +   '<td><strong>' + CRMApp.escapeHtml(item.customerName || '-') + '</strong></td>'
+      +   '<td><span class="' + getCustomerTypeClass(item.customerType) + '">' + CRMApp.escapeHtml(item.customerType || '-') + '</span></td>'
+      +   '<td>' + CRMApp.escapeHtml(item.productName || '-') + '</td>'
+      +   '<td>' + CRMApp.escapeHtml(formatAmount(item.budget)) + '</td>'
+      +   '<td>' + CRMApp.escapeHtml(item.estimatedCycle || '-') + '</td>'
+      +   '<td><span class="' + getLevelClass(item.opportunityLevel) + '">' + CRMApp.escapeHtml(item.opportunityLevel || '-') + '</span></td>'
+      +   '<td>' + CRMApp.escapeHtml(item.projectDate || '-') + '</td>'
+      +   '<td>' + CRMApp.escapeHtml(item.projectMembers || '-') + '</td>'
+      +   '<td>' + CRMApp.escapeHtml(item.solutionCommunication || '-') + '</td>'
+      +   '<td>' + CRMApp.escapeHtml(item.pocStatus || '-') + '</td>'
+      +   '<td><span class="' + getBoolClass(item.keyPersonApproved) + '">' + CRMApp.escapeHtml(item.keyPersonApproved || '-') + '</span></td>'
+      +   '<td><span class="' + getLevelClass(item.bidProbability) + '">' + CRMApp.escapeHtml(item.bidProbability || '-') + '</span></td>'
+      +   '<td>' + CRMApp.escapeHtml(item.contractNegotiation || '-') + '</td>'
+      +   '<td>' + CRMApp.escapeHtml(item.projectType || '-') + '</td>'
+      +   '<td><span class="' + getBoolClass(item.contractSigned) + '">' + CRMApp.escapeHtml(item.contractSigned || '-') + '</span></td>'
+      +   '<td><span class="' + getBoolClass(item.handoffCompleted) + '">' + CRMApp.escapeHtml(item.handoffCompleted || '-') + '</span></td>'
+      +   '<td>' + CRMApp.escapeHtml(formatDate(item.updatedAt)) + '</td>'
       +   '<td>'
       +     '<div class="action-group">'
       +       '<button class="action-btn ' + (editable ? 'action-edit' : 'action-view') + '" onclick="openDetailModal(\'' + item.id + '\')">' + (editable ? '编辑' : '查看') + '</button>'
@@ -1156,9 +1164,9 @@ function collectFormData() {
 }
 
 function buildPayload(formData) {
-  var derivedTitle = formData.customerName + ' - ' + (formData.productName || '商机');
   var stage = deriveStageFromForm(formData);
   var status = deriveStatusFromForm(formData);
+  var derivedTitle = formData.customerName + ' - ' + formData.productName;
 
   return {
     name: derivedTitle,
@@ -1166,6 +1174,40 @@ function buildPayload(formData) {
     status: status,
     amount: formData.budget,
     source: 'manual',
+
+    // 评分维度字段（必须包含，否则后端验证会失败）
+    industry: null,
+    industry_rank: null,
+    scene: null,
+    budget: null,
+    labor_cost: null,
+    daily_calls: null,
+    leader_owner: null,
+    lowest_price: null,
+    initiator_department: null,
+    competitor: null,
+    bidding_type: null,
+    has_ai_project: null,
+    customer_service_size: null,
+    region: null,
+
+    customer_name: formData.customerName,
+    customer_type: formData.customerType,
+    requirement_desc: formData.requirementDesc,
+    product_name: formData.productName,
+    estimated_cycle: formData.estimatedCycle,
+    opportunity_level: formData.opportunityLevel,
+    project_date: formData.projectDate,
+    project_members: formData.projectMembers,
+    solution_communication: formData.solutionCommunication,
+    poc_status: formData.pocStatus,
+    key_person_approved: formData.keyPersonApproved,
+    bid_probability: formData.bidProbability,
+    contract_negotiation: formData.contractNegotiation,
+    project_type: formData.projectType,
+    contract_signed: formData.contractSigned,
+    handoff_completed: formData.handoffCompleted,
+
     custom_fields: {
       owner_name_display: formData.ownerName,
       customer_name: formData.customerName,
@@ -1183,7 +1225,16 @@ function buildPayload(formData) {
       contract_negotiation: formData.contractNegotiation,
       project_type: formData.projectType,
       contract_signed: formData.contractSigned,
-      handoff_completed: formData.handoffCompleted
+      handoff_completed: formData.handoffCompleted,
+
+      company: formData.customerName,
+      demand: formData.requirementDesc,
+      product: formData.productName,
+      level: formData.opportunityLevel,
+      bcard: formData.bidProbability,
+      approve: formData.keyPersonApproved,
+      signed: formData.contractSigned,
+      notes: formData.requirementDesc
     }
   };
 }
@@ -1218,6 +1269,7 @@ async function saveOpportunity() {
     closeModal();
     await loadOpportunities();
   } catch (error) {
+    console.error(error);
     alert(error.message || '保存商机失败。');
   }
 }
@@ -1244,6 +1296,7 @@ async function deleteOpportunity(id) {
     }
     await loadOpportunities();
   } catch (error) {
+    console.error(error);
     alert(error.message || '删除商机失败。');
   }
 }

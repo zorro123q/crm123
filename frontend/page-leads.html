@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>线索管理 - SalesPilot CRM</title>
+<title>客户跟踪信息表 - SalesPilot CRM</title>
 <style>
 :root{
   --primary:#0ea5e9;
@@ -149,7 +149,7 @@ body{
   border:1px solid var(--border);
   border-radius:12px;
   background:#fff;
-  width:240px;
+  width:300px;
   font-size:14px;
 }
 
@@ -277,7 +277,7 @@ body{
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:1120px;
+  min-width:1800px;
 }
 
 th,td{
@@ -293,10 +293,31 @@ th{
   color:var(--text2);
   font-size:12px;
   font-weight:800;
+  white-space:nowrap;
 }
 
 tbody tr:hover{
   background:#fafcff;
+}
+
+.primary-cell{
+  min-width:240px;
+}
+
+.primary-title{
+  font-weight:800;
+  color:var(--text);
+  margin-bottom:4px;
+}
+
+.primary-desc{
+  font-size:12px;
+  color:var(--text2);
+  line-height:1.6;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
 }
 
 .pill{
@@ -306,6 +327,7 @@ tbody tr:hover{
   border-radius:999px;
   font-size:12px;
   font-weight:700;
+  white-space:nowrap;
 }
 
 .pill-blue{
@@ -326,6 +348,11 @@ tbody tr:hover{
 .pill-red{
   background:#fef2f2;
   color:#b91c1c;
+}
+
+.pill-gray{
+  background:#f1f5f9;
+  color:#475569;
 }
 
 .action-btn{
@@ -381,7 +408,7 @@ tbody tr:hover{
 }
 
 .modal{
-  width:min(980px,100%);
+  width:min(1100px,100%);
   max-height:92vh;
   overflow:auto;
   background:#fff;
@@ -463,6 +490,10 @@ tbody tr:hover{
   background:#fcfdff;
 }
 
+.section-block:first-child{
+  margin-top:0;
+}
+
 .section-block h4{
   font-size:16px;
   font-weight:800;
@@ -476,63 +507,9 @@ tbody tr:hover{
   margin-bottom:14px;
 }
 
-.score-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:14px;
-}
-
-.score-boxes{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
-  margin:14px 0;
-}
-
-.score-box{
-  padding:14px 16px;
-  border-radius:16px;
-  background:#eff6ff;
-  border:1px solid #bfdbfe;
-}
-
-.score-box-label{
-  display:block;
-  font-size:12px;
-  color:#1d4ed8;
-  margin-bottom:6px;
-}
-
-.score-box strong{
-  font-size:24px;
-}
-
-.score-details{
-  display:grid;
-  gap:8px;
-}
-
-.score-detail-item{
-  display:flex;
-  justify-content:space-between;
-  gap:16px;
-  padding:10px 12px;
-  border-radius:12px;
-  background:#f8fafc;
-  font-size:12px;
-  color:var(--text2);
-}
-
-.helper{
-  margin-top:8px;
-  font-size:12px;
-  color:var(--text2);
-  line-height:1.6;
-}
-
 .helper-warning{
   display:none;
-  margin-top:12px;
+  margin-bottom:14px;
   padding:12px 14px;
   border-radius:14px;
   background:#fffbeb;
@@ -540,6 +517,20 @@ tbody tr:hover{
   color:#92400e;
   font-size:12px;
   line-height:1.6;
+}
+
+.review-block{
+  margin-top:18px;
+  padding:16px 18px;
+  border-radius:18px;
+  border:1px dashed #cbd5e1;
+  background:#f8fafc;
+}
+
+.review-block h4{
+  font-size:15px;
+  font-weight:800;
+  margin-bottom:10px;
 }
 
 .modal-foot{
@@ -607,8 +598,6 @@ tbody tr:hover{
   }
 
   .stats,
-  .score-grid,
-  .score-boxes,
   .form-grid{
     grid-template-columns:1fr;
   }
@@ -619,6 +608,7 @@ tbody tr:hover{
   <aside class="sidebar">
     <div class="logo">
       <div class="logo-title">SalesPilot</div>
+      <div class="logo-sub">客户跟踪信息表</div>
     </div>
     <nav class="nav">
       <div class="nav-section">
@@ -630,7 +620,7 @@ tbody tr:hover{
       <div class="nav-section">
         <div class="nav-label">销售管理</div>
         <a href="page-kanban.html">商机看板</a>
-        <a href="page-leads.html" class="active">线索管理</a>
+        <a href="page-leads.html" class="active">客户跟踪信息表</a>
         <a href="page-opportunities.html">商机列表</a>
         <a href="page-report.html">商机通报</a>
       </div>
@@ -649,77 +639,84 @@ tbody tr:hover{
   <main class="main">
     <div class="topbar">
       <div>
-        <h1>线索管理</h1>
-        <!-- <p>
-          同名线索允许重复创建，不会自动合并。
-          普通用户只能修改、删除自己录入的线索，管理员可以删除所有人的线索。
-          卡级由评分维度自动计算，不能手工选择。
-        </p> -->
+        <h1>客户跟踪信息表</h1>
+        <p>按“客户基本信息收集 → 第一次初审 → 客户有效接触 → 第二次初审 → 获得认可 → 第三次初审”的流程记录客户推进情况。</p>
       </div>
       <div class="toolbar">
-        <input class="search" id="search-input" type="text" placeholder="搜索线索、公司、来源、负责人">
+        <input class="search" id="search-input" type="text" placeholder="搜索商务负责人、单位名称、行业、需求、来源、关键人">
         <button class="btn btn-ghost" id="refresh-btn">刷新</button>
-        <button class="btn btn-primary" id="create-btn">新建线索</button>
+        <button class="btn btn-primary" id="create-btn">新建客户跟踪</button>
         <div class="avatar" id="user-avatar">U</div>
       </div>
     </div>
 
     <div class="content">
-      <!-- <div class="notice">
-        删除接口已开启。
-        普通用户只能删除自己的线索，管理员可以删除全部线索。
-        如只想保留历史记录，也可以继续使用“已归档”状态。
-      </div> -->
+      <div class="notice">
+        当前页面严格按客户跟踪信息表逻辑保存数据。新增字段统一写入 custom_fields；
+        新建时始终新增记录，编辑时只按当前记录 id 更新，不会按名称覆盖其他记录。
+      </div>
 
       <section class="stats">
         <div class="stat-card">
-          <div class="stat-label">当前线索数</div>
+          <div class="stat-label">客户总数</div>
           <div class="stat-value" id="stat-total">0</div>
           <div class="stat-hint">按当前筛选条件统计</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">我的线索</div>
+          <div class="stat-label">我的跟踪客户</div>
           <div class="stat-value" id="stat-mine">0</div>
           <div class="stat-hint">按 owner_id 匹配</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">跟进中</div>
-          <div class="stat-value" id="stat-follow">0</div>
-          <div class="stat-hint">状态为 follow_up</div>
+          <div class="stat-label">第一次初审通过</div>
+          <div class="stat-value" id="stat-first-pass">0</div>
+          <div class="stat-hint">基础信息已通过第一次初审</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">高优先级</div>
+          <div class="stat-label">A/B级商机数</div>
           <div class="stat-value" id="stat-high">0</div>
-          <div class="stat-hint">卡级为 A / B</div>
+          <div class="stat-hint">商机等级为 A / B</div>
         </div>
       </section>
 
       <section class="panel">
         <div class="panel-head">
           <div>
-            <h2>线索列表</h2>
-            <span>新建时永远新增记录；编辑时只按主键 id 更新，不会按名称覆盖其他数据。</span>
+            <h2>客户跟踪列表</h2>
+            <span>列表展示关键推进字段，点击“编辑/查看”可打开完整客户跟踪信息。</span>
           </div>
           <span id="result-count">0 条记录</span>
         </div>
+
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>线索名称</th>
-                <th>公司</th>
-                <th>来源</th>
-                <th>状态</th>
-                <th>总分</th>
-                <th>卡级</th>
-                <th>负责人</th>
+                <th>客户信息</th>
+                <th>商务负责人</th>
+                <th>行业类别</th>
+                <th>新老客户</th>
+                <th>商机等级</th>
+                <th>预算额度</th>
+                <th>线索来源</th>
+                <th>采购过相关产品</th>
+                <th>第一次初审</th>
+                <th>拜访关键人时间</th>
+                <th>关键决策链信息</th>
+                <th>需求及合作意向</th>
+                <th>下次拜访计划</th>
+                <th>第二次初审</th>
+                <th>合作方案交流情况</th>
+                <th>关键人是否认可</th>
+                <th>下步计划</th>
+                <th>第三次初审</th>
                 <th>更新时间</th>
                 <th>操作</th>
               </tr>
             </thead>
             <tbody id="lead-tbody"></tbody>
           </table>
-          <div class="empty" id="empty-state" style="display:none">暂无线索数据</div>
+          <div class="empty" id="empty-state" style="display:none">暂无客户跟踪数据</div>
         </div>
       </section>
     </div>
@@ -728,149 +725,251 @@ tbody tr:hover{
   <div class="modal-overlay" id="lead-modal">
     <div class="modal">
       <div class="modal-head">
-        <h3 id="modal-title">新建线索</h3>
+        <h3 id="modal-title">新建客户跟踪</h3>
         <button class="modal-close" id="modal-close-btn">&times;</button>
       </div>
+
       <div class="modal-body">
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="lead-name">线索名称</label>
-            <input class="input" id="lead-name" type="text" placeholder="请输入线索名称">
-          </div>
-          <div class="form-group">
-            <label for="lead-company">公司名称</label>
-            <input class="input" id="lead-company" type="text" placeholder="请输入公司名称">
-          </div>
-          <div class="form-group">
-            <label for="lead-email">邮箱</label>
-            <input class="input" id="lead-email" type="email" placeholder="请输入联系邮箱">
-          </div>
-          <div class="form-group">
-            <label for="lead-phone">电话</label>
-            <input class="input" id="lead-phone" type="text" placeholder="请输入联系电话">
-          </div>
-          <div class="form-group">
-            <label for="lead-source">来源</label>
-            <select class="select" id="lead-source">
-              <option value="">请选择</option>
-              <option value="phone_marketing">电话营销</option>
-              <option value="customer_referral">客户转介绍</option>
-              <option value="website">官网</option>
-              <option value="exhibition">展会</option>
-              <option value="partner_referral">合作伙伴推荐</option>
-              <option value="other">其他</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="lead-status">状态</label>
-            <select class="select" id="lead-status">
-              <option value="new">新建</option>
-              <option value="follow_up">跟进中</option>
-              <option value="converted">已转化</option>
-              <option value="invalid">无效</option>
-              <option value="archived">已归档</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="lead-notes">备注</label>
-          <textarea class="textarea" id="lead-notes" placeholder="记录备注、跟进重点或重复提醒说明。"></textarea>
-        </div>
-
         <div class="helper-warning" id="lead-duplicate-warning"></div>
 
         <div class="section-block">
-          <h4>评分维度</h4>
-          <p>请填写评分维度。卡级是自动输出结果，不允许手工修改。</p>
-          <div class="score-grid" id="lead-scoring-fields"></div>
+          <h4>客户基本信息收集</h4>
+          <p>记录商务负责人、单位名称、行业类别、新老客户类型、商机等级、需求描述、预算额度、线索来源及是否采购过相关产品。</p>
 
-          <div class="score-boxes" id="lead-score-summary"></div>
-          <div class="score-details" id="lead-score-details"></div>
-          <div class="helper">页面会实时预览分数，但保存时以后端重新计算并返回的结果为准。</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="business-owner">商务负责人</label>
+              <input class="input" id="business-owner" type="text" placeholder="请输入商务负责人">
+            </div>
+
+            <div class="form-group">
+              <label for="unit-name">单位名称</label>
+              <input class="input" id="unit-name" type="text" placeholder="请输入单位名称">
+            </div>
+
+            <div class="form-group">
+              <label for="industry-category">行业类别</label>
+              <input class="input" id="industry-category" type="text" placeholder="请输入行业类别">
+            </div>
+
+            <div class="form-group">
+              <label for="customer-type">新老客户</label>
+              <select class="select" id="customer-type">
+                <option value="">请选择</option>
+                <option value="新客户">新客户</option>
+                <option value="老客户">老客户</option>
+                <option value="老客户新部门">老客户新部门</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="opportunity-level">商机等级</label>
+              <select class="select" id="opportunity-level">
+                <option value="">请选择</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="budget-amount">预算额度</label>
+              <input class="input" id="budget-amount" type="text" placeholder="请输入预算额度">
+            </div>
+
+            <div class="form-group">
+              <label for="lead-source">线索来源</label>
+              <input class="input" id="lead-source" type="text" placeholder="例如：老客户转介绍、展会、官网等">
+            </div>
+
+            <div class="form-group">
+              <label for="purchased-related-products">是否采购过相关产品</label>
+              <select class="select" id="purchased-related-products">
+                <option value="">请选择</option>
+                <option value="是">是</option>
+                <option value="否">否</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="requirement-desc">需求描述</label>
+            <textarea class="textarea" id="requirement-desc" placeholder="请输入需求描述"></textarea>
+          </div>
+        </div>
+
+        <div class="review-block">
+          <h4>第一次初审是否通过</h4>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="first-review-pass">第一次初审是否通过</label>
+            <select class="select" id="first-review-pass">
+              <option value="">请选择</option>
+              <option value="是">是</option>
+              <option value="否">否</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-block">
+          <h4>客户有效接触</h4>
+          <p>记录拜访客户关键人时间、关键决策链信息、需求及合作意向，以及下次拜访计划。</p>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="visit-key-time">拜访客户关键人时间</label>
+              <input class="input" id="visit-key-time" type="text" placeholder="例如：2025.3.18">
+            </div>
+
+            <div class="form-group">
+              <label for="cooperation-intent">需求及合作意向</label>
+              <input class="input" id="cooperation-intent" type="text" placeholder="例如：高 / 中 / 低">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="decision-chain-info">关键决策链信息</label>
+            <textarea class="textarea" id="decision-chain-info" placeholder="请输入关键决策链信息"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="next-visit-plan">下次拜访计划</label>
+            <textarea class="textarea" id="next-visit-plan" placeholder="请输入下次拜访计划"></textarea>
+          </div>
+        </div>
+
+        <div class="review-block">
+          <h4>第二次初审是否通过</h4>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="second-review-pass">第二次初审是否通过</label>
+            <select class="select" id="second-review-pass">
+              <option value="">请选择</option>
+              <option value="是">是</option>
+              <option value="否">否</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="section-block">
+          <h4>获得认可</h4>
+          <p>记录合作方案交流情况、关键人是否认可、以及后续下步计划。</p>
+
+          <div class="form-group">
+            <label for="cooperation-scheme-status">合作方案交流情况</label>
+            <textarea class="textarea" id="cooperation-scheme-status" placeholder="例如：已完成测试对接"></textarea>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="key-person-approved">关键人是否认可</label>
+              <select class="select" id="key-person-approved">
+                <option value="">请选择</option>
+                <option value="是">是</option>
+                <option value="否">否</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="next-step-plan">下步计划</label>
+            <textarea class="textarea" id="next-step-plan" placeholder="例如：完成项目实施部署和验收"></textarea>
+          </div>
+        </div>
+
+        <div class="review-block">
+          <h4>第三次初审是否通过</h4>
+          <div class="form-group" style="margin-bottom:0;">
+            <label for="third-review-pass">第三次初审是否通过</label>
+            <select class="select" id="third-review-pass">
+              <option value="">请选择</option>
+              <option value="是">是</option>
+              <option value="否">否</option>
+            </select>
+          </div>
         </div>
       </div>
+
       <div class="modal-foot">
         <button class="btn btn-ghost" id="cancel-btn">取消</button>
-        <button class="btn btn-primary" id="save-btn">保存线索</button>
+        <button class="btn btn-primary" id="save-btn">保存客户跟踪</button>
       </div>
     </div>
   </div>
 
 <script src="crm-common.js"></script>
-<script src="scoring-form.js"></script>
 <script>
 var currentUser = CRMApp.requireAuth('leads');
 var leads = [];
 var filteredLeads = [];
 var editingLeadId = null;
 var currentMode = 'create';
-var scoringFields = [];
 
-var statusLabels = {
-  new: '新建',
-  follow_up: '跟进中',
-  converted: '已转化',
-  invalid: '无效',
-  archived: '已归档'
-};
+function formatDate(value) {
+  if (!value) return '-';
+  try {
+    return new Date(value).toLocaleString('zh-CN');
+  } catch (e) {
+    return value;
+  }
+}
 
 function getLevelClass(level) {
   if (level === 'A') return 'pill pill-green';
   if (level === 'B') return 'pill pill-blue';
   if (level === 'C') return 'pill pill-orange';
-  if (level === 'D') return 'pill pill-orange';
-  return 'pill pill-red';
+  if (level === 'D') return 'pill pill-red';
+  return 'pill pill-gray';
 }
 
-function getStatusClass(status) {
-  if (status === 'converted') return 'pill pill-green';
-  if (status === 'invalid' || status === 'archived') return 'pill pill-red';
-  if (status === 'follow_up') return 'pill pill-blue';
-  return 'pill pill-orange';
-}
-
-function formatDate(value) {
-  if (!value) return '-';
-  return new Date(value).toLocaleString('zh-CN');
+function getYesNoClass(value) {
+  if (value === '是') return 'pill pill-green';
+  if (value === '否') return 'pill pill-red';
+  return 'pill pill-gray';
 }
 
 function normalizeLead(item) {
   var custom = item.custom_fields || {};
-  var normalized = {
+
+  return {
     id: item.id,
     ownerId: item.owner_id || (item.owner && item.owner.id) || '',
     ownerName: item.owner_username || (item.owner && item.owner.username) || '未分配',
-    name: item.name || '',
-    company: item.company || '',
-    email: item.email || '',
-    phone: item.phone || '',
-    source: item.source || '',
+
+    businessOwner: custom.business_owner || '',
+    unitName: custom.unit_name || item.company || item.name || '',
+    industryCategory: custom.industry_category || '',
+    customerType: custom.customer_type || '',
+    opportunityLevel: custom.opportunity_level || '',
+    requirementDesc: custom.requirement_desc || '',
+    budgetAmount: custom.budget_amount || '',
+    leadSource: custom.lead_source || item.source || '',
+    purchasedRelatedProducts: custom.purchased_related_products || '',
+
+    firstReviewPass: custom.first_review_pass || '',
+
+    visitKeyTime: custom.visit_key_time || '',
+    decisionChainInfo: custom.decision_chain_info || '',
+    cooperationIntent: custom.cooperation_intent || '',
+    nextVisitPlan: custom.next_visit_plan || '',
+
+    secondReviewPass: custom.second_review_pass || '',
+
+    cooperationSchemeStatus: custom.cooperation_scheme_status || '',
+    keyPersonApproved: custom.key_person_approved || '',
+    nextStepPlan: custom.next_step_plan || '',
+
+    thirdReviewPass: custom.third_review_pass || '',
+
     status: item.status || 'new',
-    cardScore: Number(item.card_score || 0),
-    cardLevel: item.card_level || 'E',
-    notes: custom.notes || '',
     updatedAt: item.updated_at || '',
     createdAt: item.created_at || '',
     raw: item
   };
-
-  scoringFields.forEach(function(field) {
-    normalized[field.field] = item[field.field] || null;
-  });
-  return normalized;
-}
-
-function getScoringValues(item) {
-  var values = {};
-  scoringFields.forEach(function(field) {
-    values[field.field] = item && item[field.field] ? item[field.field] : null;
-  });
-  return values;
 }
 
 function setUserUI() {
-  document.getElementById('user-avatar').textContent = (currentUser.username || 'U').charAt(0).toUpperCase();
+  document.getElementById('user-avatar').textContent =
+    (currentUser.username || 'U').charAt(0).toUpperCase();
 }
 
 async function loadLeads() {
@@ -879,34 +978,58 @@ async function loadLeads() {
     leads = (response || []).map(normalizeLead);
     applyFilter();
   } catch (error) {
-    alert(error.message || '加载线索失败。');
+    alert(error.message || '加载客户跟踪数据失败。');
   }
 }
 
 function applyFilter() {
   var keyword = document.getElementById('search-input').value.trim().toLowerCase();
+
   filteredLeads = leads.filter(function(item) {
     if (!keyword) return true;
+
     return [
-      item.name,
-      item.company,
-      item.source,
+      item.businessOwner,
+      item.unitName,
+      item.industryCategory,
+      item.customerType,
+      item.opportunityLevel,
+      item.requirementDesc,
+      item.budgetAmount,
+      item.leadSource,
+      item.purchasedRelatedProducts,
+      item.visitKeyTime,
+      item.decisionChainInfo,
+      item.cooperationIntent,
+      item.nextVisitPlan,
+      item.cooperationSchemeStatus,
+      item.keyPersonApproved,
+      item.nextStepPlan,
       item.ownerName
     ].join(' ').toLowerCase().indexOf(keyword) >= 0;
   });
+
   renderStats();
   renderTable();
 }
 
 function renderStats() {
   var total = filteredLeads.length;
-  var mine = filteredLeads.filter(function(item) { return String(item.ownerId) === String(currentUser.id); }).length;
-  var followCount = filteredLeads.filter(function(item) { return item.status === 'follow_up'; }).length;
-  var highCount = filteredLeads.filter(function(item) { return item.cardLevel === 'A' || item.cardLevel === 'B'; }).length;
+  var mine = filteredLeads.filter(function(item) {
+    return String(item.ownerId) === String(currentUser.id);
+  }).length;
+
+  var firstPassed = filteredLeads.filter(function(item) {
+    return item.firstReviewPass === '是';
+  }).length;
+
+  var highCount = filteredLeads.filter(function(item) {
+    return item.opportunityLevel === 'A' || item.opportunityLevel === 'B';
+  }).length;
 
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-mine').textContent = mine;
-  document.getElementById('stat-follow').textContent = followCount;
+  document.getElementById('stat-first-pass').textContent = firstPassed;
   document.getElementById('stat-high').textContent = highCount;
   document.getElementById('result-count').textContent = total + ' 条记录';
 }
@@ -922,41 +1045,46 @@ function renderTable() {
   }
 
   empty.style.display = 'none';
+
   tbody.innerHTML = filteredLeads.map(function(item) {
     var editable = CRMApp.canEditOwner(currentUser, item.ownerId);
+
     return '<tr>' +
-      '<td><strong>' + CRMApp.escapeHtml(item.name || '-') + '</strong></td>' +
-      '<td>' + CRMApp.escapeHtml(item.company || '-') + '</td>' +
-      '<td>' + CRMApp.escapeHtml(item.source || '-') + '</td>' +
-      '<td><span class="' + getStatusClass(item.status) + '">' + CRMApp.escapeHtml(statusLabels[item.status] || item.status) + '</span></td>' +
-      '<td>' + CRMApp.escapeHtml(item.cardScore) + '</td>' +
-      '<td><span class="' + getLevelClass(item.cardLevel) + '">' + CRMApp.escapeHtml(item.cardLevel || '-') + '</span></td>' +
-      '<td>' + CRMApp.escapeHtml(item.ownerName) + '</td>' +
+      '<td class="primary-cell">' +
+        '<div class="primary-title">' + CRMApp.escapeHtml(item.unitName || '-') + '</div>' +
+        '<div class="primary-desc">' + CRMApp.escapeHtml(item.requirementDesc || '暂无需求描述') + '</div>' +
+      '</td>' +
+      '<td>' + CRMApp.escapeHtml(item.businessOwner || '-') + '</td>' +
+      '<td>' + CRMApp.escapeHtml(item.industryCategory || '-') + '</td>' +
+      '<td>' + CRMApp.escapeHtml(item.customerType || '-') + '</td>' +
+      '<td><span class="' + getLevelClass(item.opportunityLevel) + '">' + CRMApp.escapeHtml(item.opportunityLevel || '-') + '</span></td>' +
+      '<td>' + CRMApp.escapeHtml(item.budgetAmount || '-') + '</td>' +
+      '<td>' + CRMApp.escapeHtml(item.leadSource || '-') + '</td>' +
+      '<td><span class="' + getYesNoClass(item.purchasedRelatedProducts) + '">' + CRMApp.escapeHtml(item.purchasedRelatedProducts || '-') + '</span></td>' +
+      '<td><span class="' + getYesNoClass(item.firstReviewPass) + '">' + CRMApp.escapeHtml(item.firstReviewPass || '-') + '</span></td>' +
+      '<td>' + CRMApp.escapeHtml(item.visitKeyTime || '-') + '</td>' +
+      '<td>' + CRMApp.escapeHtml(item.decisionChainInfo || '-') + '</td>' +
+      '<td>' + CRMApp.escapeHtml(item.cooperationIntent || '-') + '</td>' +
+      '<td>' + CRMApp.escapeHtml(item.nextVisitPlan || '-') + '</td>' +
+      '<td><span class="' + getYesNoClass(item.secondReviewPass) + '">' + CRMApp.escapeHtml(item.secondReviewPass || '-') + '</span></td>' +
+      '<td>' + CRMApp.escapeHtml(item.cooperationSchemeStatus || '-') + '</td>' +
+      '<td><span class="' + getYesNoClass(item.keyPersonApproved) + '">' + CRMApp.escapeHtml(item.keyPersonApproved || '-') + '</span></td>' +
+      '<td>' + CRMApp.escapeHtml(item.nextStepPlan || '-') + '</td>' +
+      '<td><span class="' + getYesNoClass(item.thirdReviewPass) + '">' + CRMApp.escapeHtml(item.thirdReviewPass || '-') + '</span></td>' +
       '<td>' + CRMApp.escapeHtml(formatDate(item.updatedAt)) + '</td>' +
       '<td><div class="action-group">' +
         '<button class="action-btn ' + (editable ? 'action-edit' : 'action-view') + '" onclick="openDetailModal(\'' + item.id + '\')">' + (editable ? '编辑' : '查看') + '</button>' +
         (editable ? '<button class="action-btn action-delete" onclick="deleteLead(\'' + item.id + '\')">删除</button>' : '') +
       '</div></td>' +
-      '</tr>';
+    '</tr>';
   }).join('');
-}
-
-function updateLeadScorePreview() {
-  var result = CRMScoringForm.calculate(scoringFields, CRMScoringForm.getValues(document.getElementById('lead-scoring-fields')));
-  CRMScoringForm.renderPreview(
-    document.getElementById('lead-score-summary'),
-    document.getElementById('lead-score-details'),
-    result
-  );
 }
 
 function updateDuplicateWarning() {
   var warningEl = document.getElementById('lead-duplicate-warning');
-  var name = document.getElementById('lead-name').value.trim().toLowerCase();
-  var company = document.getElementById('lead-company').value.trim().toLowerCase();
-  var phone = document.getElementById('lead-phone').value.trim().toLowerCase();
+  var unitName = document.getElementById('unit-name').value.trim().toLowerCase();
 
-  if (!name && !company && !phone) {
+  if (!unitName) {
     warningEl.style.display = 'none';
     warningEl.textContent = '';
     return;
@@ -966,10 +1094,7 @@ function updateDuplicateWarning() {
     if (editingLeadId && item.id === editingLeadId) {
       return false;
     }
-    var sameName = name && item.name && item.name.toLowerCase() === name;
-    var sameCompany = company && item.company && item.company.toLowerCase() === company;
-    var samePhone = phone && item.phone && item.phone.toLowerCase() === phone;
-    return sameName || (sameName && sameCompany) || samePhone;
+    return item.unitName && item.unitName.toLowerCase() === unitName;
   });
 
   if (!duplicates.length) {
@@ -979,55 +1104,95 @@ function updateDuplicateWarning() {
   }
 
   warningEl.style.display = 'block';
-  warningEl.textContent = '重复提醒：当前有 ' + duplicates.length + ' 条线索在名称、公司或电话上可能重复。保存时仍然只会创建新记录，或仅按当前 id 更新。';
+  warningEl.textContent = '重复提醒：当前已有 ' + duplicates.length + ' 条记录与该单位名称相同。保存时仍会按新记录创建，或按当前记录 id 更新。';
 }
 
 function setFormReadOnly(readOnly) {
   [
-    'lead-name',
-    'lead-company',
-    'lead-email',
-    'lead-phone',
+    'business-owner',
+    'unit-name',
+    'industry-category',
+    'customer-type',
+    'opportunity-level',
+    'requirement-desc',
+    'budget-amount',
     'lead-source',
-    'lead-status',
-    'lead-notes'
+    'purchased-related-products',
+    'first-review-pass',
+    'visit-key-time',
+    'decision-chain-info',
+    'cooperation-intent',
+    'next-visit-plan',
+    'second-review-pass',
+    'cooperation-scheme-status',
+    'key-person-approved',
+    'next-step-plan',
+    'third-review-pass'
   ].forEach(function(id) {
     var element = document.getElementById(id);
+    if (!element) return;
     element.disabled = !!readOnly;
     element.classList.toggle('readonly', !!readOnly);
   });
-  CRMScoringForm.setDisabled(document.getElementById('lead-scoring-fields'), !!readOnly);
 }
 
 function fillForm(item, readOnly) {
   var values = item || {
-    name: '',
-    company: '',
-    email: '',
-    phone: '',
-    source: '',
-    status: 'new',
-    notes: ''
+    businessOwner: '',
+    unitName: '',
+    industryCategory: '',
+    customerType: '',
+    opportunityLevel: '',
+    requirementDesc: '',
+    budgetAmount: '',
+    leadSource: '',
+    purchasedRelatedProducts: '',
+    firstReviewPass: '',
+    visitKeyTime: '',
+    decisionChainInfo: '',
+    cooperationIntent: '',
+    nextVisitPlan: '',
+    secondReviewPass: '',
+    cooperationSchemeStatus: '',
+    keyPersonApproved: '',
+    nextStepPlan: '',
+    thirdReviewPass: ''
   };
 
-  document.getElementById('lead-name').value = values.name || '';
-  document.getElementById('lead-company').value = values.company || '';
-  document.getElementById('lead-email').value = values.email || '';
-  document.getElementById('lead-phone').value = values.phone || '';
-  document.getElementById('lead-source').value = values.source || '';
-  document.getElementById('lead-status').value = values.status || 'new';
-  document.getElementById('lead-notes').value = values.notes || '';
-  CRMScoringForm.setValues(document.getElementById('lead-scoring-fields'), scoringFields, getScoringValues(item));
-  updateLeadScorePreview();
+  document.getElementById('business-owner').value = values.businessOwner || '';
+  document.getElementById('unit-name').value = values.unitName || '';
+  document.getElementById('industry-category').value = values.industryCategory || '';
+  document.getElementById('customer-type').value = values.customerType || '';
+  document.getElementById('opportunity-level').value = values.opportunityLevel || '';
+  document.getElementById('requirement-desc').value = values.requirementDesc || '';
+  document.getElementById('budget-amount').value = values.budgetAmount || '';
+  document.getElementById('lead-source').value = values.leadSource || '';
+  document.getElementById('purchased-related-products').value = values.purchasedRelatedProducts || '';
+
+  document.getElementById('first-review-pass').value = values.firstReviewPass || '';
+
+  document.getElementById('visit-key-time').value = values.visitKeyTime || '';
+  document.getElementById('decision-chain-info').value = values.decisionChainInfo || '';
+  document.getElementById('cooperation-intent').value = values.cooperationIntent || '';
+  document.getElementById('next-visit-plan').value = values.nextVisitPlan || '';
+
+  document.getElementById('second-review-pass').value = values.secondReviewPass || '';
+
+  document.getElementById('cooperation-scheme-status').value = values.cooperationSchemeStatus || '';
+  document.getElementById('key-person-approved').value = values.keyPersonApproved || '';
+  document.getElementById('next-step-plan').value = values.nextStepPlan || '';
+
+  document.getElementById('third-review-pass').value = values.thirdReviewPass || '';
+
   updateDuplicateWarning();
   setFormReadOnly(readOnly);
 }
 
 function openCreateModal() {
-  currentMode = 'create';
   editingLeadId = null;
-  document.getElementById('modal-title').textContent = '新建线索';
-  document.getElementById('save-btn').textContent = '保存线索';
+  currentMode = 'create';
+  document.getElementById('modal-title').textContent = '新建客户跟踪';
+  document.getElementById('save-btn').textContent = '保存客户跟踪';
   document.getElementById('save-btn').style.display = '';
   fillForm(null, false);
   document.getElementById('lead-modal').classList.add('active');
@@ -1038,9 +1203,10 @@ function openDetailModal(id) {
   if (!item) return;
 
   editingLeadId = id;
-  currentMode = 'edit';
   var editable = CRMApp.canEditOwner(currentUser, item.ownerId);
-  document.getElementById('modal-title').textContent = editable ? '编辑线索' : '查看线索';
+  currentMode = editable ? 'edit' : 'view';
+
+  document.getElementById('modal-title').textContent = editable ? '编辑客户跟踪' : '查看客户跟踪';
   document.getElementById('save-btn').textContent = editable ? '保存修改' : '关闭';
   document.getElementById('save-btn').style.display = '';
   fillForm(item, !editable);
@@ -1051,26 +1217,72 @@ function closeModal() {
   document.getElementById('lead-modal').classList.remove('active');
 }
 
-function collectPayload() {
-  var name = document.getElementById('lead-name').value.trim();
-  if (!name) {
-    throw new Error('请先填写线索名称。');
+function deriveStatus(payload) {
+  var custom = payload.custom_fields || {};
+
+  if (custom.third_review_pass === '是') {
+    return 'converted';
   }
 
-  return Object.assign({
-    name: name,
-    company: document.getElementById('lead-company').value.trim() || null,
-    email: document.getElementById('lead-email').value.trim() || null,
-    phone: document.getElementById('lead-phone').value.trim() || null,
-    source: document.getElementById('lead-source').value || null,
-    status: document.getElementById('lead-status').value || 'new',
+  if (custom.second_review_pass === '是') {
+    return 'follow_up';
+  }
+
+  if (custom.first_review_pass === '否') {
+    return 'invalid';
+  }
+
+  return 'new';
+}
+
+function collectPayload() {
+  var unitName = document.getElementById('unit-name').value.trim();
+  if (!unitName) {
+    throw new Error('请先填写单位名称。');
+  }
+
+  var payload = {
+    name: unitName,
+    company: unitName,
+    source: document.getElementById('lead-source').value.trim() || null,
     custom_fields: {
-      notes: document.getElementById('lead-notes').value.trim()
+      business_owner: document.getElementById('business-owner').value.trim(),
+      unit_name: unitName,
+      industry_category: document.getElementById('industry-category').value.trim(),
+      customer_type: document.getElementById('customer-type').value || '',
+      opportunity_level: document.getElementById('opportunity-level').value || '',
+      requirement_desc: document.getElementById('requirement-desc').value.trim(),
+      budget_amount: document.getElementById('budget-amount').value.trim(),
+      lead_source: document.getElementById('lead-source').value.trim(),
+      purchased_related_products: document.getElementById('purchased-related-products').value || '',
+
+      first_review_pass: document.getElementById('first-review-pass').value || '',
+
+      visit_key_time: document.getElementById('visit-key-time').value.trim(),
+      decision_chain_info: document.getElementById('decision-chain-info').value.trim(),
+      cooperation_intent: document.getElementById('cooperation-intent').value.trim(),
+      next_visit_plan: document.getElementById('next-visit-plan').value.trim(),
+
+      second_review_pass: document.getElementById('second-review-pass').value || '',
+
+      cooperation_scheme_status: document.getElementById('cooperation-scheme-status').value.trim(),
+      key_person_approved: document.getElementById('key-person-approved').value || '',
+      next_step_plan: document.getElementById('next-step-plan').value.trim(),
+
+      third_review_pass: document.getElementById('third-review-pass').value || ''
     }
-  }, CRMScoringForm.getValues(document.getElementById('lead-scoring-fields')));
+  };
+
+  payload.status = deriveStatus(payload);
+  return payload;
 }
 
 async function saveLead() {
+  if (currentMode === 'view') {
+    closeModal();
+    return;
+  }
+
   if (currentMode === 'edit') {
     var existing = leads.find(function(entry) { return entry.id === editingLeadId; });
     if (!existing || !CRMApp.canEditOwner(currentUser, existing.ownerId)) {
@@ -1081,15 +1293,17 @@ async function saveLead() {
 
   try {
     var payload = collectPayload();
+
     if (currentMode === 'create') {
       await CRMApp.apiRequest('/api/leads', { method: 'POST', body: payload });
     } else {
       await CRMApp.apiRequest('/api/leads/' + editingLeadId, { method: 'PATCH', body: payload });
     }
+
     closeModal();
     await loadLeads();
   } catch (error) {
-    alert(error.message || '保存线索失败。');
+    alert(error.message || '保存客户跟踪失败。');
   }
 }
 
@@ -1099,10 +1313,8 @@ async function deleteLead(id) {
     return;
   }
 
-  var confirmed = window.confirm('确认删除线索“' + (existing.name || '未命名线索') + '”？删除后不可恢复。');
-  if (!confirmed) {
-    return;
-  }
+  var confirmed = window.confirm('确认删除客户“' + (existing.unitName || '未命名客户') + '”？删除后不可恢复。');
+  if (!confirmed) return;
 
   try {
     await CRMApp.apiRequest('/api/leads/' + id, { method: 'DELETE' });
@@ -1111,25 +1323,13 @@ async function deleteLead(id) {
     }
     await loadLeads();
   } catch (error) {
-    alert(error.message || '删除线索失败。');
+    alert(error.message || '删除客户跟踪失败。');
   }
 }
 
 async function initPage() {
   if (!currentUser) return;
   setUserUI();
-
-  try {
-    var scoringPayload = await CRMApp.getScoringOptions();
-    scoringFields = (scoringPayload && scoringPayload.fields) || [];
-    CRMScoringForm.renderFields(document.getElementById('lead-scoring-fields'), scoringFields);
-    document.getElementById('lead-scoring-fields').addEventListener('change', updateLeadScorePreview);
-    updateLeadScorePreview();
-  } catch (error) {
-    alert(error.message || '加载评分维度失败。');
-    return;
-  }
-
   await loadLeads();
 }
 
@@ -1138,16 +1338,10 @@ document.getElementById('refresh-btn').addEventListener('click', loadLeads);
 document.getElementById('create-btn').addEventListener('click', openCreateModal);
 document.getElementById('modal-close-btn').addEventListener('click', closeModal);
 document.getElementById('cancel-btn').addEventListener('click', closeModal);
-document.getElementById('save-btn').addEventListener('click', function() {
-  if (document.getElementById('save-btn').textContent === '关闭') {
-    closeModal();
-    return;
-  }
-  saveLead();
-});
-['lead-name', 'lead-company', 'lead-phone'].forEach(function(id) {
-  document.getElementById(id).addEventListener('input', updateDuplicateWarning);
-});
+document.getElementById('save-btn').addEventListener('click', saveLead);
+
+document.getElementById('unit-name').addEventListener('input', updateDuplicateWarning);
+
 document.getElementById('lead-modal').addEventListener('click', function(event) {
   if (event.target === this) closeModal();
 });
